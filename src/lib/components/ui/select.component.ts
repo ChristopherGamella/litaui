@@ -1,0 +1,556 @@
+import { Component, Input, Output, EventEmitter, HostBinding, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, ChevronDown, Check, Search, X, icons } from 'lucide-angular';
+import { cva, type VariantProps } from '../../utils/cn';
+import { SelectProps, SelectOption } from '../../types';
+
+/**
+ * Select trigger variants configuration
+ */
+export const selectTriggerVariants = cva(
+  "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
+  {
+    variants: {
+      variant: {
+        default: "",
+        error: "border-destructive focus:ring-destructive",
+      },
+      size: {
+        sm: "h-8 px-2 py-1 text-xs",
+        md: "h-10 px-3 py-2 text-sm",
+        lg: "h-12 px-4 py-3 text-base",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "md",
+    },
+  }
+);
+
+/**
+ * Select content variants configuration
+ */
+export const selectContentVariants = cva(
+  "relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md animate-in fade-in-80",
+  {
+    variants: {
+      position: {
+        'top-left': "slide-in-from-top-2",
+        'top-right': "slide-in-from-top-2",
+        'bottom-left': "slide-in-from-bottom-2",
+        'bottom-right': "slide-in-from-bottom-2",
+      },
+    },
+    defaultVariants: {
+      position: "bottom-left",
+    },
+  }
+);
+
+/**
+ * Select item variants configuration
+ */
+export const selectItemVariants = cva(
+  "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "",
+        destructive: "text-destructive focus:bg-destructive/10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+);
+
+export type SelectTriggerVariant = VariantProps<typeof selectTriggerVariants>;
+export type SelectContentVariant = VariantProps<typeof selectContentVariants>;
+export type SelectItemVariant = VariantProps<typeof selectItemVariants>;
+
+/**
+ * Select component following shadcn/ui design patterns
+ * Integrated with your existing color system and form validation
+ */
+@Component({
+  selector: 'lib-select',
+  standalone: true,
+  imports: [CommonModule, FormsModule, LucideAngularModule],
+  template: `
+    <div class="relative">
+      <!-- Select Trigger -->
+      <button
+        type="button"
+        [class]="triggerClasses"
+        [attr.aria-expanded]="isOpen"
+        [attr.aria-haspopup]="true"
+        [attr.aria-label]="ariaLabel || placeholder || 'Select option'"
+        [attr.data-testid]="dataTestid"
+        (click)="toggleDropdown()"
+        (keydown)="handleKeydown($event)"
+        #triggerButton
+      >
+        <!-- Selected Value Display -->
+        <span [class]="getDisplayTextClass()">
+          {{ getDisplayText() }}
+        </span>
+
+        <!-- Icons -->
+        <div class="flex items-center space-x-1">
+          @if (clearable && selectedValue) {
+            <button
+              type="button"
+              class="flex-shrink-0 hover:bg-muted rounded-full p-0.5"
+              (click)="clearSelection($event)"
+              [attr.aria-label]="'Clear selection'"
+            >
+              <lucide-angular [img]="XIcon" size="14"></lucide-angular>
+            </button>
+          }
+          <lucide-angular
+            [img]="ChevronDownIcon"
+            size="16"
+            class="flex-shrink-0 opacity-50"
+            [class.rotate-180]="isOpen"
+          ></lucide-angular>
+        </div>
+      </button>
+
+      <!-- Dropdown Content -->
+      @if (isOpen) {
+        <div
+          class="absolute top-full left-0 z-50 mt-1 min-w-full"
+          #dropdownContent
+        >
+          <div class="rounded-md border bg-popover text-popover-foreground shadow-md">
+            <!-- Search Input -->
+            @if (searchable) {
+              <div class="p-2 border-b">
+                <div class="relative">
+                  <lucide-angular [img]="SearchIcon" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></lucide-angular>
+                  <input
+                    type="text"
+                    [placeholder]="'Search ' + (placeholder?.toLowerCase() || 'options...')"
+                    [value]="searchQuery"
+                    (input)="onSearchInput($event)"
+                    class="w-full pl-9 pr-3 py-2 text-sm bg-background border rounded focus:outline-none focus:ring-2 focus:ring-ring"
+                    #searchInput
+                  />
+                </div>
+              </div>
+            }
+
+            <!-- Options List -->
+            <div class="max-h-60 overflow-y-auto p-1">
+              @if (filteredOptions().length === 0) {
+                <div class="py-6 text-center text-sm text-muted-foreground">
+                  {{ searchQuery ? 'No options found' : 'No options available' }}
+                </div>
+              } @else {
+                @for (option of filteredOptions(); track option.value) {
+                  <div
+                    [class]="getOptionClasses(option)"
+                    [attr.data-value]="option.value"
+                    [attr.aria-selected]="isSelected(option)"
+                    (click)="selectOption(option)"
+                    (mouseenter)="setHighlightedIndex(filteredOptions().indexOf(option))"
+                  >
+                    <!-- Check Icon for Selected -->
+                    @if (isSelected(option)) {
+                      <lucide-angular [img]="CheckIcon" size="16" class="absolute left-2 flex-shrink-0"></lucide-angular>
+                    }
+
+                    <!-- Option Content -->
+                    <div class="flex items-center space-x-2">
+                      @if (option.icon) {
+                        <lucide-angular [img]="getIcon(option.icon)" size="16" class="flex-shrink-0"></lucide-angular>
+                      }
+                      <div class="flex-1">
+                        <div class="font-medium">{{ option.label }}</div>
+                        @if (option.description) {
+                          <div class="text-xs text-muted-foreground">{{ option.description }}</div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  `,
+  styles: [`
+    :host {
+      display: block;
+    }
+
+    /* Dropdown animations */
+    .animate-in {
+      animation: select-in 0.15s ease-out;
+    }
+
+    .fade-in-80 {
+      animation: fade-in-80 0.15s ease-out;
+    }
+
+    .slide-in-from-bottom-2 {
+      animation: slide-in-from-bottom-2 0.15s ease-out;
+    }
+
+    @keyframes select-in {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes fade-in-80 {
+      from { opacity: 0; }
+      to { opacity: 0.8; }
+    }
+
+    @keyframes slide-in-from-bottom-2 {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Rotate animation for chevron */
+    .rotate-180 {
+      transform: rotate(180deg);
+    }
+
+    /* Focus styles */
+    button:focus {
+      outline: none;
+    }
+
+    /* Option hover and selection styles */
+    .select-option {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .select-option:hover {
+      background-color: var(--color-accent);
+      color: var(--color-accent-foreground);
+    }
+
+    .select-option.selected {
+      background-color: var(--color-accent);
+      color: var(--color-accent-foreground);
+    }
+  `]
+})
+export class SelectComponent implements SelectProps, AfterViewInit, OnDestroy {
+  @ViewChild('triggerButton') triggerButton!: ElementRef<HTMLButtonElement>;
+  @ViewChild('dropdownContent') dropdownContent?: ElementRef<HTMLDivElement>;
+  @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
+
+  // Component inputs
+  @Input() options: SelectOption[] = [];
+  @Input() multiple = false;
+  @Input() placeholder?: string;
+  @Input() searchable = false;
+  @Input() clearable = false;
+  @Input() disabled = false;
+  @Input() loading = false;
+  @Input() maxHeight?: string;
+  @Input() variant: 'default' | 'error' = 'default';
+  @Input() size: 'sm' | 'md' | 'lg' = 'md';
+  @Input() id?: string;
+  @Input() class?: string;
+  @Input() dataTestid?: string;
+
+  // Accessibility inputs
+  @Input() ariaLabel?: string;
+
+  // Event outputs
+  @Input() value?: any;
+  @Output() valueChange = new EventEmitter<any>();
+  @Output() selectionChange = new EventEmitter<SelectOption | SelectOption[]>();
+
+  // Internal state
+  isOpen = false;
+  searchQuery = '';
+  highlightedIndex = -1;
+  selectedValue: any = null;
+  selectedValues: any[] = [];
+
+  // Icons
+  readonly ChevronDownIcon = ChevronDown;
+  readonly CheckIcon = Check;
+  readonly SearchIcon = Search;
+  readonly XIcon = X;
+
+  /**
+   * Get icon by name
+   */
+  getIcon(iconName: string) {
+    return (icons as any)[iconName];
+  }
+
+  // Outside click handler
+  private clickOutsideHandler?: (event: Event) => void;
+
+  ngAfterViewInit(): void {
+    this.setupOutsideClickHandler();
+  }
+
+  ngOnDestroy(): void {
+    this.removeOutsideClickHandler();
+  }
+
+  /**
+   * Computed trigger classes
+   */
+  get triggerClasses(): string {
+    const baseClasses = selectTriggerVariants({
+      variant: this.variant,
+      size: this.size,
+    } as any);
+
+    const classes = [baseClasses];
+
+    if (this.class) {
+      classes.push(this.class);
+    }
+
+    if (this.disabled) {
+      classes.push('cursor-not-allowed opacity-50');
+    }
+
+    return classes.join(' ');
+  }
+
+  /**
+   * Get filtered options based on search query
+   */
+  filteredOptions(): SelectOption[] {
+    if (!this.searchable || !this.searchQuery.trim()) {
+      return this.options;
+    }
+
+    const query = this.searchQuery.toLowerCase();
+    return this.options.filter(option =>
+      option.label.toLowerCase().includes(query) ||
+      (option.description && option.description.toLowerCase().includes(query))
+    );
+  }
+
+  /**
+   * Get display text for the trigger
+   */
+  getDisplayText(): string {
+    if (this.multiple) {
+      if (this.selectedValues.length === 0) {
+        return this.placeholder || 'Select options...';
+      }
+      if (this.selectedValues.length === 1) {
+        const option = this.options.find(opt => opt.value === this.selectedValues[0]);
+        return option?.label || this.placeholder || 'Select options...';
+      }
+      return `${this.selectedValues.length} selected`;
+    } else {
+      if (!this.selectedValue) {
+        return this.placeholder || 'Select option...';
+      }
+      const option = this.options.find(opt => opt.value === this.selectedValue);
+      return option?.label || this.placeholder || 'Select option...';
+    }
+  }
+
+  /**
+   * Get display text class
+   */
+  getDisplayTextClass(): string {
+    const hasValue = this.multiple ? this.selectedValues.length > 0 : !!this.selectedValue;
+    return hasValue ? 'text-foreground' : 'text-muted-foreground';
+  }
+
+  /**
+   * Check if option is selected
+   */
+  isSelected(option: SelectOption): boolean {
+    if (this.multiple) {
+      return this.selectedValues.includes(option.value);
+    }
+    return this.selectedValue === option.value;
+  }
+
+  /**
+   * Get option classes
+   */
+  getOptionClasses(option: SelectOption): string {
+    const baseClasses = selectItemVariants({
+      variant: option.disabled ? 'destructive' : 'default',
+    });
+
+    const classes = [baseClasses, 'select-option'];
+
+    if (this.isSelected(option)) {
+      classes.push('selected');
+    }
+
+    if (option.disabled) {
+      classes.push('opacity-50 cursor-not-allowed');
+    }
+
+    return classes.join(' ');
+  }
+
+  /**
+   * Toggle dropdown visibility
+   */
+  toggleDropdown(): void {
+    if (this.disabled) return;
+
+    this.isOpen = !this.isOpen;
+
+    if (this.isOpen) {
+      this.highlightedIndex = -1;
+      // Focus search input if searchable
+      setTimeout(() => {
+        if (this.searchable && this.searchInput) {
+          this.searchInput.nativeElement.focus();
+        }
+      });
+    }
+  }
+
+  /**
+   * Select an option
+   */
+  selectOption(option: SelectOption): void {
+    if (option.disabled) return;
+
+    if (this.multiple) {
+      const index = this.selectedValues.indexOf(option.value);
+      if (index > -1) {
+        this.selectedValues.splice(index, 1);
+      } else {
+        this.selectedValues.push(option.value);
+      }
+      this.value = this.selectedValues;
+    } else {
+      this.selectedValue = option.value;
+      this.value = option.value;
+      this.isOpen = false;
+    }
+
+    this.valueChange.emit(this.value);
+    this.selectionChange.emit(this.multiple ? this.selectedValues.map(val =>
+      this.options.find(opt => opt.value === val)
+    ).filter((opt): opt is SelectOption => opt !== undefined) : option);
+  }
+
+  /**
+   * Clear selection
+   */
+  clearSelection(event: Event): void {
+    event.stopPropagation();
+
+    if (this.multiple) {
+      this.selectedValues = [];
+    } else {
+      this.selectedValue = null;
+    }
+
+    this.value = this.multiple ? [] : null;
+    this.valueChange.emit(this.value);
+    this.selectionChange.emit(this.multiple ? [] : undefined);
+  }
+
+  /**
+   * Handle search input
+   */
+  onSearchInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.searchQuery = target.value;
+    this.highlightedIndex = -1;
+  }
+
+  /**
+   * Handle keyboard navigation
+   */
+  handleKeydown(event: KeyboardEvent): void {
+    const filteredOptions = this.filteredOptions();
+
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        this.setHighlightedIndex(Math.min(this.highlightedIndex + 1, filteredOptions.length - 1));
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        this.setHighlightedIndex(Math.max(this.highlightedIndex - 1, 0));
+        break;
+      case 'Enter':
+        event.preventDefault();
+        if (this.highlightedIndex >= 0 && this.highlightedIndex < filteredOptions.length) {
+          this.selectOption(filteredOptions[this.highlightedIndex]);
+        }
+        break;
+      case 'Escape':
+        event.preventDefault();
+        this.isOpen = false;
+        this.triggerButton.nativeElement.focus();
+        break;
+      case 'Tab':
+        if (this.isOpen) {
+          event.preventDefault();
+          this.isOpen = false;
+        }
+        break;
+    }
+  }
+
+  /**
+   * Set highlighted index
+   */
+  setHighlightedIndex(index: number): void {
+    this.highlightedIndex = index;
+  }
+
+  /**
+   * Setup outside click handler
+   */
+  private setupOutsideClickHandler(): void {
+    this.clickOutsideHandler = (event: Event) => {
+      const target = event.target as HTMLElement;
+      const triggerElement = this.triggerButton?.nativeElement;
+      const dropdownElement = this.dropdownContent?.nativeElement;
+
+      if (triggerElement && dropdownElement &&
+          !triggerElement.contains(target) &&
+          !dropdownElement.contains(target)) {
+        this.isOpen = false;
+      }
+    };
+
+    document.addEventListener('click', this.clickOutsideHandler);
+  }
+
+  /**
+   * Remove outside click handler
+   */
+  private removeOutsideClickHandler(): void {
+    if (this.clickOutsideHandler) {
+      document.removeEventListener('click', this.clickOutsideHandler);
+    }
+  }
+}
