@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter, HostBinding, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostBinding, ElementRef, ViewChild, AfterViewInit, forwardRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { cva, type VariantProps } from '../../utils/cn';
 import { InputProps } from '../../types';
@@ -41,6 +41,13 @@ export type InputVariant = VariantProps<typeof inputVariants>;
   selector: 'lib-input',
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputComponent),
+      multi: true,
+    },
+  ],
   template: `
     <div class="relative">
       <!-- Left Icon -->
@@ -68,7 +75,7 @@ export type InputVariant = VariantProps<typeof inputVariants>;
         [class.pr-10]="rightIcon || clearable"
         (input)="handleInput($event)"
         (focus)="focusChange.emit($event)"
-        (blur)="blurChange.emit($event)"
+        (blur)="handleBlur($event)"
         (keydown)="keydownChange.emit($event)"
       />
 
@@ -129,7 +136,7 @@ export type InputVariant = VariantProps<typeof inputVariants>;
     }
   `]
 })
-export class InputComponent implements InputProps, AfterViewInit {
+export class InputComponent implements InputProps, AfterViewInit, ControlValueAccessor {
   @ViewChild('inputElement', { static: true }) inputElement!: ElementRef<HTMLInputElement>;
 
   // Component inputs
@@ -164,6 +171,10 @@ export class InputComponent implements InputProps, AfterViewInit {
 
   // Icon imports (for clear button)
   XIcon: any;
+
+  // ControlValueAccessor callbacks
+  private onChange = (value: string | number) => {};
+  private onTouched = () => {};
 
   constructor() {
     // Dynamic import for X icon (clear button)
@@ -206,6 +217,16 @@ export class InputComponent implements InputProps, AfterViewInit {
     this.value = target.value;
     this.valueChange.emit(this.value);
     this.inputChange.emit(event);
+    // Notify form control of change
+    this.onChange(this.value);
+  }
+
+  /**
+   * Handle blur events
+   */
+  handleBlur(event: FocusEvent): void {
+    this.blurChange.emit(event);
+    this.onTouched();
   }
 
   /**
@@ -244,5 +265,25 @@ export class InputComponent implements InputProps, AfterViewInit {
    */
   get nativeElement(): HTMLInputElement {
     return this.inputElement.nativeElement;
+  }
+
+  // ControlValueAccessor implementation
+  writeValue(value: string | number): void {
+    this.value = value || '';
+    if (this.inputElement) {
+      this.inputElement.nativeElement.value = String(this.value);
+    }
+  }
+
+  registerOnChange(fn: (value: string | number) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
   }
 }

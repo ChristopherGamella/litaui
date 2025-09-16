@@ -72,6 +72,7 @@ export class ThemeService {
   private readonly renderer = this.rendererFactory.createRenderer(null, null);
 
   private readonly config: Required<ThemeConfig> = defaultThemeConfig;
+  private effectRef: any;
   
   // Signals for reactive theme management
   private readonly _theme = signal<Theme>('system');
@@ -94,6 +95,10 @@ export class ThemeService {
     this.initializeTheme();
     this.setupSystemThemeListener();
     this.setupThemeEffect();
+    // Force initial theme application
+    setTimeout(() => {
+      this.applyTheme(this.resolvedTheme());
+    }, 0);
   }
 
   /**
@@ -135,6 +140,13 @@ export class ThemeService {
   }
 
   /**
+   * Force theme application (useful for component initialization)
+   */
+  forceApplyTheme(): void {
+    this.applyTheme(this.resolvedTheme());
+  }
+
+  /**
    * Initialize theme from storage or system preference
    */
   private initializeTheme(): void {
@@ -171,7 +183,12 @@ export class ThemeService {
    * Setup effect to apply theme changes to DOM
    */
   private setupThemeEffect(): void {
-    effect(() => {
+    // Ensure we don't create multiple effects
+    if (this.effectRef) {
+      return;
+    }
+    
+    this.effectRef = effect(() => {
       const resolvedTheme = this.resolvedTheme();
       this.applyTheme(resolvedTheme);
     });

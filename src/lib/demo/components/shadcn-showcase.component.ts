@@ -8,8 +8,13 @@ import { InputComponent } from '../../components/ui/input.component';
 import { AlertComponent } from '../../components/ui/alert.component';
 import { AvatarComponent } from '../../components/ui/avatar.component';
 import { SwitchComponent } from '../../components/ui/switch.component';
+import { ProgressComponent } from '../../components/ui/progress.component';
+import { TabsComponent, TabItem } from '../../components/ui/tabs.component';
+import { AccordionComponent, AccordionItem } from '../../components/ui/accordion.component';
+import { DropdownMenuComponent, DropdownMenuItem } from '../../components/ui/dropdown-menu.component';
+import { BreadcrumbComponent, BreadcrumbItem } from '../../components/ui/breadcrumb.component';
 import { ThemeService } from '../../utils/theme';
-import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code2, Copy, Check } from 'lucide-angular';
+import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code2, Copy, Check, Info, AlertTriangle, Home, ChevronRight, Menu, Archive, Folder, File } from 'lucide-angular';
 
 /**
  * Comprehensive demo component showcasing all shadcn/ui Angular components
@@ -33,6 +38,11 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code2, Copy, Chec
     AlertComponent,
     AvatarComponent,
     SwitchComponent,
+    ProgressComponent,
+    TabsComponent,
+    AccordionComponent,
+    DropdownMenuComponent,
+    BreadcrumbComponent,
     LucideAngularModule
   ],
   template: `
@@ -354,6 +364,135 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code2, Copy, Chec
             </div>
           </section>
 
+          <!-- Navigation Components -->
+          <section class="space-y-6">
+            <div>
+              <h3 class="text-2xl font-semibold mb-2">Navigation Components</h3>
+              <p class="text-muted-foreground">Components for navigation and wayfinding.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+              <!-- Breadcrumbs -->
+              <lib-card class="p-6">
+                <div class="space-y-4">
+                  <h4 class="text-sm font-medium">Breadcrumbs</h4>
+                  <lib-breadcrumb [items]="breadcrumbItems"></lib-breadcrumb>
+                  
+                  <lib-breadcrumb 
+                    [items]="breadcrumbItems" 
+                    size="sm"
+                    variant="ghost">
+                  </lib-breadcrumb>
+                </div>
+              </lib-card>
+
+              <!-- Tabs -->
+              <lib-card class="p-6">
+                <div class="space-y-4">
+                  <h4 class="text-sm font-medium">Tabs</h4>
+                  <lib-tabs 
+                    [tabs]="tabItems" 
+                    [(activeTab)]="activeTab">
+                  </lib-tabs>
+                </div>
+              </lib-card>
+            </div>
+          </section>
+
+          <!-- Progress & Feedback Components -->
+          <section class="space-y-6">
+            <div>
+              <h3 class="text-2xl font-semibold mb-2">Progress & Feedback</h3>
+              <p class="text-muted-foreground">Components for showing progress and providing feedback.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+              <!-- Progress Bars -->
+              <lib-card class="p-6">
+                <div class="space-y-4">
+                  <h4 class="text-sm font-medium">Progress</h4>
+                  
+                  <!-- Linear Progress -->
+                  <div class="space-y-3">
+                    <lib-progress [value]="progressValue()" [showLabel]="true"></lib-progress>
+                    <lib-progress [value]="45" variant="success" [showLabel]="true"></lib-progress>
+                    <lib-progress [value]="80" variant="warning" [showLabel]="true"></lib-progress>
+                    <lib-progress [indeterminate]="true" label="Loading..."></lib-progress>
+                  </div>
+                </div>
+              </lib-card>
+
+              <!-- Circular Progress -->
+              <lib-card class="p-6">
+                <div class="space-y-4">
+                  <h4 class="text-sm font-medium">Circular Progress</h4>
+                  
+                  <div class="flex items-center gap-4">
+                    <lib-progress 
+                      type="circular" 
+                      [value]="progressValue()" 
+                      size="sm" 
+                      [showLabel]="true">
+                    </lib-progress>
+                    <lib-progress 
+                      type="circular" 
+                      [value]="60" 
+                      size="md" 
+                      variant="success" 
+                      [showLabel]="true">
+                    </lib-progress>
+                    <lib-progress 
+                      type="circular" 
+                      [value]="90" 
+                      size="lg" 
+                      variant="warning" 
+                      [showLabel]="true">
+                    </lib-progress>
+                  </div>
+                </div>
+              </lib-card>
+            </div>
+          </section>
+
+          <!-- Interactive Components -->
+          <section class="space-y-6">
+            <div>
+              <h3 class="text-2xl font-semibold mb-2">Interactive Components</h3>
+              <p class="text-muted-foreground">Components for user interaction and data organization.</p>
+            </div>
+
+            <div class="grid gap-6">
+              <!-- Accordion -->
+              <lib-card class="p-6">
+                <div class="space-y-4">
+                  <h4 class="text-sm font-medium">Accordion</h4>
+                  <lib-accordion [items]="accordionItems"></lib-accordion>
+                </div>
+              </lib-card>
+
+              <!-- Dropdown Menu -->
+              <lib-card class="p-6">
+                <div class="space-y-4">
+                  <h4 class="text-sm font-medium">Dropdown Menu</h4>
+                  <div class="flex gap-4">
+                    <lib-dropdown-menu [items]="dropdownMenuItems">
+                      <lib-button variant="outline">
+                        <lucide-angular [img]="MenuIcon" class="h-4 w-4 mr-2"></lucide-angular>
+                        Menu
+                      </lib-button>
+                    </lib-dropdown-menu>
+
+                    <lib-dropdown-menu [items]="dropdownMenuItems" size="sm">
+                      <lib-button variant="ghost" size="sm">
+                        Actions
+                      </lib-button>
+                    </lib-dropdown-menu>
+                  </div>
+                </div>
+              </lib-card>
+            </div>
+          </section>
+
           <!-- Code Examples -->
           <section class="space-y-6">
             <div>
@@ -424,12 +563,20 @@ export class ShadcnShowcaseComponent implements OnInit {
   readonly UserIcon = User;
   readonly CopyIcon = Copy;
   readonly CheckIcon = Check;
-  readonly InfoIcon = User; // Replace with actual Info icon
-  readonly AlertTriangleIcon = User; // Replace with actual AlertTriangle icon
+  readonly InfoIcon = Info;
+  readonly AlertTriangleIcon = AlertTriangle;
+  readonly HomeIcon = Home;
+  readonly ChevronRightIcon = ChevronRight;
+  readonly MenuIcon = Menu;
+  readonly ArchiveIcon = Archive;
+  readonly FolderIcon = Folder;
+  readonly FileIcon = File;
 
   // Component state
   buttonLoading = signal(false);
   copied = signal(false);
+  progressValue = signal(75);
+  activeTab = signal('overview');
   
   // Form data
   demoEmail = '';
@@ -442,11 +589,60 @@ export class ShadcnShowcaseComponent implements OnInit {
   marketingEmails = false;
   securityAlerts = true;
 
+  // Demo data for new components
+  tabItems: TabItem[] = [
+    { id: 'overview', label: 'Overview', content: 'Overview content here...', icon: this.HomeIcon },
+    { id: 'analytics', label: 'Analytics', content: 'Analytics dashboard content...', badge: '3' },
+    { id: 'reports', label: 'Reports', content: 'Reports and data exports...' },
+    { id: 'settings', label: 'Settings', content: 'Application settings...', icon: this.SettingsIcon }
+  ];
+
+  accordionItems: AccordionItem[] = [
+    {
+      id: 'getting-started',
+      title: 'Getting Started',
+      content: 'Learn how to install and configure the component library in your Angular project.',
+      icon: this.InfoIcon
+    },
+    {
+      id: 'components',
+      title: 'Components Overview',
+      content: 'Explore all available components including buttons, forms, navigation, and feedback elements.',
+      expanded: true
+    },
+    {
+      id: 'customization',
+      title: 'Customization Guide',
+      content: 'Customize colors, typography, spacing, and create your own design system variants.'
+    },
+    {
+      id: 'examples',
+      title: 'Code Examples',
+      content: 'Real-world examples and patterns for building modern Angular applications.'
+    }
+  ];
+
+  dropdownMenuItems: DropdownMenuItem[] = [
+    { id: 'profile', label: 'Profile', icon: this.UserIcon, shortcut: '⌘P' },
+    { id: 'settings', label: 'Settings', icon: this.SettingsIcon, shortcut: '⌘,' },
+    { id: 'separator1', label: '', type: 'separator' },
+    { id: 'notifications', label: 'Notifications', type: 'checkbox', checked: true },
+    { id: 'email-alerts', label: 'Email Alerts', type: 'checkbox', checked: false },
+    { id: 'separator2', label: '', type: 'separator' },
+    { id: 'logout', label: 'Log out', shortcut: '⌘⇧Q' }
+  ];
+
+  breadcrumbItems: BreadcrumbItem[] = [
+    { id: 'home', label: 'Home', href: '/', icon: this.HomeIcon },
+    { id: 'components', label: 'Components', href: '/components' },
+    { id: 'ui', label: 'UI Components', href: '/components/ui' },
+    { id: 'current', label: 'Showcase', current: true }
+  ];
+
   constructor(public themeService: ThemeService) {}
 
   ngOnInit(): void {
     // Component initialization - modern Angular handles change detection automatically
-    console.log('ShadcnShowcaseComponent initialized');
   }
 
   toggleTheme(): void {

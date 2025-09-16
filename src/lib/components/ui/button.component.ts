@@ -17,7 +17,7 @@ export const buttonVariants = cva(
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "text-gray-900 hover:bg-accent hover:text-accent-foreground",
+        ghost: "text-foreground hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
@@ -140,8 +140,17 @@ export type ButtonVariant = VariantProps<typeof buttonVariants>;
       width: 100%;
     }
 
+    /* Icon buttons should maintain their fixed dimensions */
+    button.h-10.w-10 {
+      width: 2.5rem !important;
+    }
+
     :host-context(.full-width) button {
       width: 100%;
+    }
+
+    :host-context(.full-width) button.h-10.w-10 {
+      width: 2.5rem !important;
     }
 
     /* Animation for loading state */

@@ -12,16 +12,6 @@ export const routes: Routes = [
     title: 'Button Test'
   },
   {
-    path: 'minimal',
-    loadComponent: () => import('../lib/demo/components/minimal-demo.component').then(c => c.MinimalDemoComponent),
-    title: 'Minimal Demo'
-  },
-  {
-    path: 'button-demo',
-    loadComponent: () => import('../lib/demo/components/button-demo.component').then(c => c.ButtonDemoComponent),
-    title: 'Button Demo'
-  },
-  {
     path: 'demo',
     loadComponent: () => import('../lib/demo/components/demo.component').then(c => c.DemoComponent),
     title: 'Component Demo'

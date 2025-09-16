@@ -374,6 +374,192 @@ export type AnimationDuration = 'fast' | 'normal' | 'slow';
 export type AnimationEasing = 'linear' | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out';
 
 /**
+ * Progress component props
+ */
+export interface ProgressProps extends BaseComponentProps {
+  /** Progress value (0-100) */
+  value?: number;
+  /** Maximum value */
+  max?: number;
+  /** Indeterminate state for loading */
+  indeterminate?: boolean;
+  /** Progress variant */
+  variant?: 'default' | 'success' | 'warning' | 'error';
+  /** Progress type */
+  type?: 'linear' | 'circular';
+  /** Show percentage label */
+  showLabel?: boolean;
+  /** Custom label text */
+  label?: string;
+  /** Animation duration for transitions */
+  animationDuration?: number;
+}
+
+/**
+ * Tab item interface
+ */
+export interface TabItem {
+  /** Unique identifier for the tab */
+  id: string;
+  /** Tab label */
+  label: string;
+  /** Tab content */
+  content?: string;
+  /** Icon for the tab */
+  icon?: any;
+  /** Disabled state */
+  disabled?: boolean;
+  /** Closable tab */
+  closable?: boolean;
+  /** Badge content */
+  badge?: string | number;
+  /** Tab template ref */
+  template?: any;
+}
+
+/**
+ * Tabs component props
+ */
+export interface TabsProps extends BaseComponentProps {
+  /** Array of tab items */
+  tabs?: TabItem[];
+  /** Currently active tab ID */
+  activeTab?: string;
+  /** Tab orientation */
+  orientation?: 'horizontal' | 'vertical';
+  /** Tab variant style */
+  variant?: 'default' | 'pills' | 'underline';
+  /** Tab size */
+  size?: 'sm' | 'md' | 'lg';
+  /** Allow closing tabs */
+  closable?: boolean;
+  /** Enable keyboard loop navigation */
+  loop?: boolean;
+}
+
+/**
+ * Accordion item interface
+ */
+export interface AccordionItem {
+  /** Unique identifier for the accordion item */
+  id: string;
+  /** Accordion header title */
+  title: string;
+  /** Accordion content */
+  content?: string;
+  /** Icon for the accordion header */
+  icon?: any;
+  /** Disabled state */
+  disabled?: boolean;
+  /** Header template ref */
+  headerTemplate?: any;
+  /** Content template ref */
+  contentTemplate?: any;
+  /** Initial expanded state */
+  expanded?: boolean;
+}
+
+/**
+ * Accordion component props
+ */
+export interface AccordionProps extends BaseComponentProps {
+  /** Array of accordion items */
+  items?: AccordionItem[];
+  /** Accordion variant style */
+  variant?: 'default' | 'ghost' | 'separated';
+  /** Accordion size */
+  size?: 'sm' | 'md' | 'lg';
+  /** Allow multiple items to be expanded */
+  multiple?: boolean;
+  /** Allow collapsing all items */
+  collapsible?: boolean;
+}
+
+/**
+ * Dropdown menu item interface
+ */
+export interface DropdownMenuItem {
+  /** Unique identifier */
+  id: string;
+  /** Item label */
+  label: string;
+  /** Item value */
+  value?: any;
+  /** Icon for the item */
+  icon?: any;
+  /** Disabled state */
+  disabled?: boolean;
+  /** Item type */
+  type?: 'item' | 'separator' | 'label' | 'checkbox' | 'radio' | 'destructive';
+  /** Checked state for checkbox/radio items */
+  checked?: boolean;
+  /** Keyboard shortcut */
+  shortcut?: string;
+  /** Submenu items */
+  submenu?: DropdownMenuItem[];
+  /** Custom template */
+  template?: any;
+  /** Click handler */
+  action?: () => void;
+}
+
+/**
+ * Dropdown menu component props
+ */
+export interface DropdownMenuProps extends BaseComponentProps {
+  /** Array of menu items */
+  items?: DropdownMenuItem[];
+  /** Dropdown placement */
+  placement?: 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end' | 'left-start' | 'left-end' | 'right-start' | 'right-end';
+  /** Dropdown size */
+  size?: 'sm' | 'md' | 'lg';
+  /** Close dropdown on item select */
+  closeOnSelect?: boolean;
+}
+
+/**
+ * Breadcrumb item interface
+ */
+export interface BreadcrumbItem {
+  /** Unique identifier */
+  id: string;
+  /** Breadcrumb label */
+  label: string;
+  /** URL or route */
+  href?: string;
+  /** Icon for the breadcrumb */
+  icon?: any;
+  /** Disabled state */
+  disabled?: boolean;
+  /** Is current page */
+  current?: boolean;
+  /** Custom template */
+  template?: any;
+  /** Click handler */
+  onClick?: () => void;
+}
+
+/**
+ * Breadcrumb component props
+ */
+export interface BreadcrumbProps extends BaseComponentProps {
+  /** Array of breadcrumb items */
+  items?: BreadcrumbItem[];
+  /** Breadcrumb variant style */
+  variant?: 'default' | 'ghost';
+  /** Breadcrumb size */
+  size?: 'sm' | 'md' | 'lg';
+  /** Custom separator icon */
+  separator?: any;
+  /** Maximum number of items to show */
+  maxItems?: number;
+  /** Show ellipsis for overflow */
+  showEllipsis?: boolean;
+  /** Show dropdown for ellipsis */
+  ellipsisDropdown?: boolean;
+}
+
+/**
  * Responsive breakpoint types
  */
 export type Breakpoint = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';

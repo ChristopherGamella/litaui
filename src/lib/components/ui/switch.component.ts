@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, computed, input, output, forwardRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, computed, input, output, forwardRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { cva, type VariantProps, cn } from '../../utils/cn';
@@ -99,7 +99,7 @@ export type SwitchVariant = VariantProps<typeof switchVariants>;
 export class SwitchComponent implements ControlValueAccessor {
   // Signal inputs
   size = input<'default' | 'sm' | 'lg'>('default');
-  checked = input<boolean>(false);
+  checked = signal<boolean>(false);
   
   // Traditional inputs
   @Input() disabled = false;
@@ -138,7 +138,7 @@ export class SwitchComponent implements ControlValueAccessor {
     if (this.disabled) return;
     
     const newValue = !this.checked();
-    this.writeValue(newValue);
+    this.checked.set(newValue);
     this.onChange(newValue);
     this.checkedChange.emit(newValue);
   }
@@ -163,8 +163,7 @@ export class SwitchComponent implements ControlValueAccessor {
 
   // ControlValueAccessor implementation
   writeValue(value: boolean): void {
-    // Update the internal state - in a real implementation with signals
-    // you might need to use a WritableSignal
+    this.checked.set(value || false);
   }
 
   registerOnChange(fn: (value: boolean) => void): void {
