@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostBinding, HostListener, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostBinding, HostListener, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, X } from 'lucide-angular';
 import { cva, type VariantProps } from '../../utils/cn';
@@ -280,6 +280,7 @@ export class ModalComponent implements ModalProps, AfterViewInit, OnDestroy {
         this.modalContent.nativeElement.focus();
         this.trapFocus();
       }
+      // Change detection is automatic with signals
     }, 100);
 
     this.onOpen.emit();

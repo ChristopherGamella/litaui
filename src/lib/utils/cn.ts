@@ -2,21 +2,50 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 /**
- * Utility function to combine and merge Tailwind CSS classes
- * Similar to shadcn/ui's cn() function
- * @param inputs - Class values to combine
- * @returns Merged class string
+ * Combines and merges Tailwind CSS classes intelligently
+ * 
+ * This utility function combines multiple class values and resolves conflicts
+ * between Tailwind CSS classes. It's the core utility for the shadcn/ui design system.
+ * 
+ * @param inputs - Class values to combine (strings, conditionals, arrays, objects)
+ * @returns Merged class string with conflicts resolved
+ * 
+ * @example
+ * ```typescript
+ * // Basic usage
+ * cn('px-2 py-1', 'px-3') // Returns: 'py-1 px-3'
+ * 
+ * // With conditionals
+ * cn('base-class', isActive && 'active-class', 'another-class')
+ * 
+ * // With objects
+ * cn('base', { 'conditional': true, 'other': false })
+ * 
+ * // In components
+ * const buttonClass = cn(
+ *   'inline-flex items-center justify-center rounded-md',
+ *   variant === 'primary' && 'bg-primary text-primary-foreground',
+ *   variant === 'secondary' && 'bg-secondary text-secondary-foreground',
+ *   size === 'sm' && 'h-9 px-3',
+ *   size === 'lg' && 'h-11 px-8',
+ *   className
+ * );
+ * ```
  */
-export function cn(...inputs: ClassValue[]) {
+export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
 
+// Re-export class-variance-authority for convenience
+export { cva, type VariantProps } from 'class-variance-authority';
+
+// Re-export clsx and twMerge for advanced usage
+export { clsx, type ClassValue } from 'clsx';
+export { twMerge } from 'tailwind-merge';
+
 /**
- * Type-safe class name utility for component variants
- * @param base - Base classes
- * @param variants - Variant configuration
- * @param props - Props to apply variants
- * @returns Combined class string
+ * @deprecated Use cva from class-variance-authority instead
+ * This is kept for backward compatibility
  */
 export function variantProps<T extends Record<string, any>>(
   base: string,
@@ -32,27 +61,4 @@ export function variantProps<T extends Record<string, any>>(
   }
 
   return cn(...classes);
-}
-
-/**
- * Variant props type helper
- */
-export type VariantProps<T extends (...args: any) => any> = Omit<Parameters<T>[0], 'class'>;
-
-/**
- * Create a variant function for component styling
- * @param config - Variant configuration
- * @returns Variant function
- */
-export function cva<T extends Record<string, Record<string, string>>>(
-  base: string,
-  config: {
-    variants: T;
-    defaultVariants?: Record<string, string>;
-  }
-) {
-  return (props?: Record<string, string>) => {
-    const mergedProps = { ...config.defaultVariants, ...props };
-    return variantProps(base, config.variants, mergedProps as any);
-  };
 }

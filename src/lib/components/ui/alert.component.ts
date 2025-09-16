@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostBinding } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostBinding, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { cva, type VariantProps } from '../../utils/cn';
@@ -163,6 +163,7 @@ export class AlertComponent implements AlertProps {
     if (this.autoClose && this.autoClose > 0) {
       this.autoCloseTimer = window.setTimeout(() => {
         this.handleAutoClose();
+        // Change detection is automatic with signals
       }, this.autoClose);
     }
   }
@@ -218,6 +219,7 @@ export class AlertComponent implements AlertProps {
       // Emit event after animation
       setTimeout(() => {
         this.onDismiss.emit();
+        // Change detection is automatic with signals
       }, 300);
     } else {
       this.onDismiss.emit();

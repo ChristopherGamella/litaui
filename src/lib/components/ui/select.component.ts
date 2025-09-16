@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostBinding, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostBinding, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, ChevronDown, Check, Search, X, icons } from 'lucide-angular';
@@ -428,6 +428,7 @@ export class SelectComponent implements SelectProps, AfterViewInit, OnDestroy {
         if (this.searchable && this.searchInput) {
           this.searchInput.nativeElement.focus();
         }
+        // Change detection is automatic with signals
       });
     }
   }
@@ -539,6 +540,7 @@ export class SelectComponent implements SelectProps, AfterViewInit, OnDestroy {
           !triggerElement.contains(target) &&
           !dropdownElement.contains(target)) {
         this.isOpen = false;
+        // Change detection is automatic with signals
       }
     };
 

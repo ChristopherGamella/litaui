@@ -1,36 +1,38 @@
-import { Component, Input, Output, EventEmitter, HostBinding, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostBinding, computed, input, output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
-import { cva, type VariantProps } from '../../utils/cn';
-import { ButtonProps } from '../../types';
+import { cva, type VariantProps, cn } from '../../utils/cn';
 
 /**
  * Button variants configuration
- * Following shadcn/ui pattern with Angular integration
+ * Following shadcn/ui pattern with Angular integration  
+ * Using proper CSS custom properties that map to TailwindCSS 4 theme
  */
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input hover:bg-accent hover:text-accent-foreground",
+        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+        ghost: "text-foreground hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        xs: "h-7 px-2 text-xs",
-        sm: "h-9 px-3 rounded-md",
-        md: "h-10 py-2 px-4",
-        lg: "h-11 px-8 rounded-md",
-        xl: "h-12 px-10 text-lg rounded-md",
+        xs: "h-8 rounded px-2 text-xs",
+        sm: "h-9 rounded-md px-3",
+        default: "h-10 px-4 py-2",
+        md: "h-10 px-4 py-2",
+        lg: "h-11 rounded-md px-8",
+        xl: "h-12 rounded-lg px-10 text-base",
+        icon: "h-10 w-10",
       },
     },
     defaultVariants: {
       variant: "default",
-      size: "md",
+      size: "default",
     },
   }
 );
@@ -39,7 +41,41 @@ export type ButtonVariant = VariantProps<typeof buttonVariants>;
 
 /**
  * Button component following shadcn/ui design patterns
- * Integrated with your existing color system and Lucide icons
+ * Enhanced with modern Angular signals and updated styling
+ * 
+ * @example
+ * ```html
+ * <!-- Basic usage -->
+ * <lib-button>Click me</lib-button>
+ * 
+ * <!-- Variants -->
+ * <lib-button variant="outline">Outline</lib-button>
+ * <lib-button variant="destructive">Delete</lib-button>
+ * <lib-button variant="ghost">Ghost</lib-button>
+ * <lib-button variant="link">Link</lib-button>
+ * 
+ * <!-- Sizes -->
+ * <lib-button size="sm">Small</lib-button>
+ * <lib-button size="lg">Large</lib-button>
+ * <lib-button size="icon">
+ *   <lucide-angular [img]="heartIcon" size="16"></lucide-angular>
+ * </lib-button>
+ * 
+ * <!-- With icons -->
+ * <lib-button [leftIcon]="mailIcon">
+ *   Send Email
+ * </lib-button>
+ * 
+ * <!-- Loading state -->
+ * <lib-button [loading]="isSubmitting">
+ *   Submit Form
+ * </lib-button>
+ * 
+ * <!-- Event handling -->
+ * <lib-button (onClick)="handleSave()">
+ *   Save Changes
+ * </lib-button>
+ * ```
  */
 @Component({
   selector: 'lib-button',
@@ -48,30 +84,35 @@ export type ButtonVariant = VariantProps<typeof buttonVariants>;
   template: `
     <button
       [type]="type"
-      [disabled]="disabled || loading"
+      [disabled]="disabled() || loading()"
       [attr.aria-label]="ariaLabel"
       [attr.aria-describedby]="ariaDescribedBy"
       [attr.aria-expanded]="ariaExpanded"
       [attr.role]="role"
       [attr.tabindex]="tabIndex"
       [attr.data-testid]="dataTestid"
-      [class]="buttonClasses"
+      [class]="buttonClasses()"
       (click)="handleClick($event)"
       (focus)="onFocus.emit($event)"
       (blur)="onBlur.emit($event)"
-      (keydown)="onKeydown.emit($event)"
+      (keydown)="handleKeydown($event)"
     >
       <!-- Loading spinner -->
-      @if (loading) {
-        <div class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
-        {{ loadingText || 'Loading...' }}
+      @if (loading()) {
+        <div class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true"></div>
+        @if (loadingText) {
+          {{ loadingText }}
+        } @else {
+          <span class="sr-only">Loading</span>
+        }
       } @else {
         <!-- Left icon -->
         @if (leftIcon) {
           <lucide-angular
             [img]="leftIcon"
             size="16"
-            class="mr-2 flex-shrink-0"
+            class="shrink-0"
+            aria-hidden="true"
           ></lucide-angular>
         }
 
@@ -83,7 +124,8 @@ export type ButtonVariant = VariantProps<typeof buttonVariants>;
           <lucide-angular
             [img]="rightIcon"
             size="16"
-            class="ml-2 flex-shrink-0"
+            class="shrink-0"
+            aria-hidden="true"
           ></lucide-angular>
         }
       }
@@ -101,15 +143,27 @@ export type ButtonVariant = VariantProps<typeof buttonVariants>;
     :host-context(.full-width) button {
       width: 100%;
     }
+
+    /* Animation for loading state */
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
   `]
 })
-export class ButtonComponent implements ButtonProps {
-  // Component inputs
+export class ButtonComponent implements OnInit {
+  // Modern signal inputs (Angular 17+)
+  variant = input<'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'>('default');
+  size = input<'xs' | 'sm' | 'default' | 'md' | 'lg' | 'xl' | 'icon'>('default');
+  disabled = input<boolean>(false);
+  loading = input<boolean>(false);
+
+  // Traditional inputs for compatibility
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
-  @Input() variant: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' = 'default';
-  @Input() size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' = 'md';
-  @Input() disabled = false;
-  @Input() loading = false;
   @Input() loadingText?: string;
   @Input() leftIcon?: any;
   @Input() rightIcon?: any;
@@ -125,11 +179,16 @@ export class ButtonComponent implements ButtonProps {
   @Input() role?: string;
   @Input() tabIndex?: number;
 
-  // Event outputs
-  @Output() onClick = new EventEmitter<Event>();
-  @Output() onFocus = new EventEmitter<FocusEvent>();
-  @Output() onBlur = new EventEmitter<FocusEvent>();
-  @Output() onKeydown = new EventEmitter<KeyboardEvent>();
+  // Modern signal outputs
+  onClick = output<Event>();
+  onFocus = output<FocusEvent>();
+  onBlur = output<FocusEvent>();
+  onKeydown = output<KeyboardEvent>();
+
+  ngOnInit(): void {
+    // Component initialization without forced change detection
+    // Modern Angular with signals handles this automatically
+  }
 
   // Host bindings for dynamic classes
   @HostBinding('class')
@@ -137,54 +196,67 @@ export class ButtonComponent implements ButtonProps {
     return this.fullWidth ? 'full-width' : '';
   }
 
+  @HostBinding('attr.data-loading')
+  get isLoading(): boolean {
+    return this.loading();
+  }
+
+  @HostBinding('attr.data-disabled')
+  get isDisabled(): boolean {
+    return this.disabled() || this.loading();
+  }
+
   /**
    * Computed button classes using the variant system
    */
-  get buttonClasses(): string {
-    const variantClasses = buttonVariants({
-      variant: this.variant as any,
-      size: this.size as any,
-    });
-
-    const classes = [variantClasses];
-
-    // Add custom class if provided
-    if (this.class) {
-      classes.push(this.class);
-    }
-
-    // Add disabled styles
-    if (this.disabled || this.loading) {
-      classes.push('cursor-not-allowed');
-    }
-
-    return classes.join(' ');
-  }
+  protected buttonClasses = computed(() => {
+    return cn(
+      buttonVariants({
+        variant: this.variant(),
+        size: this.size(),
+      }),
+      this.class
+    );
+  });
 
   /**
    * Handle button click with loading state check
    */
-  handleClick(event: Event): void {
-    if (this.disabled || this.loading) {
+  protected handleClick(event: Event): void {
+    if (this.disabled() || this.loading()) {
       event.preventDefault();
       event.stopPropagation();
       return;
     }
 
     this.onClick.emit(event);
+    // Removed problematic ApplicationRef.tick() call that was causing recursive errors
   }
 
   /**
    * Handle keyboard events for accessibility
+   * Supports Enter and Space key activation
    */
-  @HostListener('keydown', ['$event'])
-  handleKeydown(event: KeyboardEvent): void {
+  protected handleKeydown(event: KeyboardEvent): void {
     // Handle Enter and Space keys for button activation
     if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      if (!this.disabled && !this.loading) {
-        this.handleClick(event);
+      if (this.disabled() || this.loading()) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
       }
+
+      // Prevent default to avoid double-firing for space
+      if (event.key === ' ') {
+        event.preventDefault();
+      }
+
+      // Create and dispatch click event
+      const clickEvent = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+      });
+      this.handleClick(clickEvent);
     }
 
     this.onKeydown.emit(event);

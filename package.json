@@ -1,16 +1,67 @@
 {
-  "name": "shadcc",
-  "version": "0.0.0",
+  "name": "shadcn-angular",
+  "version": "1.0.0",
+  "description": "The definitive shadcn/ui port for Angular applications. Modern, accessible, and developer-friendly.",
+  "keywords": [
+    "angular",
+    "shadcn",
+    "ui",
+    "components",
+    "design-system",
+    "tailwindcss",
+    "typescript",
+    "accessibility",
+    "standalone",
+    "signals"
+  ],
+  "homepage": "https://shadcn-angular.dev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shadcn-angular/shadcn-angular.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shadcn-angular/shadcn-angular/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "shadcn-angular Contributors",
+    "url": "https://github.com/shadcn-angular/shadcn-angular/graphs/contributors"
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "@angular/common": ">=18.0.0",
+    "@angular/core": ">=18.0.0",
+    "tailwindcss": ">=3.0.0"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:lib": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:lib": "ng test --project=shadcn-angular",
+    "lint": "ng lint",
+    "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,scss,css,json}\"",
+    "prepublishOnly": "npm run build:lib",
+    "release": "npm version patch && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:major": "npm version major && npm publish"
   },
   "prettier": {
     "printWidth": 100,
     "singleQuote": true,
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": true,
     "overrides": [
       {
         "files": "*.html",
@@ -20,27 +71,36 @@
       }
     ]
   },
-  "private": true,
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "private": false,
   "dependencies": {
-    "@angular/common": "^20.3.0",
+    "@angular/cdk": "^20.2.3",
+    "@angular/common": ">=18.0.0",
     "@angular/compiler": "^20.3.0",
-    "@angular/core": "^20.3.0",
+    "@angular/core": ">=18.0.0",
     "@angular/forms": "^20.3.0",
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
     "@tailwindcss/postcss": "^4.1.13",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-angular": "^0.544.0",
     "postcss": "^8.5.6",
     "rxjs": "~7.8.0",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.13",
+    "tailwindcss": ">=3.0.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@angular/build": "^20.3.1",
     "@angular/cli": "^20.3.1",
     "@angular/compiler-cli": "^20.3.0",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
     "@types/jasmine": "~5.1.0",
     "jasmine-core": "~5.9.0",
     "karma": "~6.4.0",

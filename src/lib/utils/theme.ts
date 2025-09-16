@@ -1,276 +1,383 @@
-/**
- * Theme utilities for the shadcn-inspired Angular component library
- * Provides centralized theme management and CSS custom property generation
- */
+import { Injectable, Renderer2, RendererFactory2, signal, computed, effect } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { inject } from '@angular/core';
 
-import { semanticColors, componentColors, themes, type ColorScheme } from '../tokens/colors';
-import { typography, textUtilities } from '../tokens/typography';
-import { spacing, semanticSpacing } from '../tokens/spacing';
+export type Theme = 'light' | 'dark' | 'system';
+export type ResolvedTheme = 'light' | 'dark';
 
 /**
- * Generate CSS custom properties for a given color scheme
+ * Theme configuration interface
  */
-export function generateThemeCSS(colorScheme: ColorScheme = 'light'): string {
-  const theme = themes[colorScheme];
-  const cssVars: string[] = [];
-
-  // Generate semantic color variables
-  Object.entries(theme).forEach(([key, value]) => {
-    cssVars.push(`  --${key}: ${value};`);
-  });
-
-  // Generate component-specific variables
-  Object.entries(componentColors).forEach(([component, variants]) => {
-    Object.entries(variants).forEach(([variant, colors]) => {
-      if (typeof colors === 'object') {
-        Object.entries(colors).forEach(([property, value]) => {
-          cssVars.push(`  --${component}-${variant}-${property}: ${value};`);
-        });
-      }
-    });
-  });
-
-  // Generate typography variables
-  Object.entries(typography).forEach(([key, styles]) => {
-    Object.entries(styles).forEach(([property, value]) => {
-      const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
-      cssVars.push(`  --typography-${key}-${cssProperty}: ${value};`);
-    });
-  });
-
-  // Generate spacing variables
-  Object.entries(semanticSpacing).forEach(([category, values]) => {
-    Object.entries(values).forEach(([subcategory, subvalues]) => {
-      if (typeof subvalues === 'object') {
-        Object.entries(subvalues).forEach(([size, value]) => {
-          cssVars.push(`  --spacing-${category}-${subcategory}-${size}: ${value};`);
-        });
-      }
-    });
-  });
-
-  return `:root {\n${cssVars.join('\n')}\n}`;
+export interface ThemeConfig {
+  /** Default theme to use */
+  defaultTheme?: Theme;
+  /** Storage key for theme preference */
+  storageKey?: string;
+  /** Whether to use system preference */
+  enableSystem?: boolean;
+  /** Disable transitions when switching themes */
+  disableTransitionOnChange?: boolean;
+  /** Custom themes */
+  themes?: string[];
+  /** CSS attribute to set on document element */
+  attribute?: 'class' | 'data-theme';
+  /** Value to use for theme attribute */
+  value?: Record<string, string>;
 }
 
 /**
- * Theme provider class for Angular applications
+ * Default theme configuration
  */
-export class ThemeProvider {
-  private currentScheme: ColorScheme = 'light';
+export const defaultThemeConfig: Required<ThemeConfig> = {
+  defaultTheme: 'system',
+  storageKey: 'shadcn-theme',
+  enableSystem: true,
+  disableTransitionOnChange: false,
+  themes: ['light', 'dark'],
+  attribute: 'class',
+  value: {},
+};
 
-  constructor(initialScheme: ColorScheme = 'light') {
-    this.currentScheme = initialScheme;
-    this.applyTheme();
+/**
+ * Injectable theme service for managing application themes
+ * 
+ * Provides theme switching, persistence, and system preference detection.
+ * Compatible with shadcn/ui theming patterns.
+ * 
+ * @example
+ * ```typescript
+ * @Component({
+ *   template: `
+ *     <button (click)="toggleTheme()">
+ *       Current: {{ themeService.resolvedTheme() }}
+ *     </button>
+ *   `
+ * })
+ * export class ThemeToggleComponent {
+ *   constructor(public themeService: ThemeService) {}
+ * 
+ *   toggleTheme() {
+ *     const current = this.themeService.theme();
+ *     this.themeService.setTheme(current === 'light' ? 'dark' : 'light');
+ *   }
+ * }
+ * ```
+ */
+@Injectable({
+  providedIn: 'root'
+})
+export class ThemeService {
+  private readonly document = inject(DOCUMENT);
+  private readonly rendererFactory = inject(RendererFactory2);
+  private readonly renderer = this.rendererFactory.createRenderer(null, null);
+
+  private readonly config: Required<ThemeConfig> = defaultThemeConfig;
+  
+  // Signals for reactive theme management
+  private readonly _theme = signal<Theme>('system');
+  private readonly _systemTheme = signal<ResolvedTheme>('light');
+  
+  // Public reactive signals
+  readonly theme = this._theme.asReadonly();
+  readonly systemTheme = this._systemTheme.asReadonly();
+  
+  // Computed resolved theme
+  readonly resolvedTheme = computed<ResolvedTheme>(() => {
+    const theme = this._theme();
+    if (theme === 'system') {
+      return this._systemTheme();
+    }
+    return theme as ResolvedTheme;
+  });
+
+  constructor() {
+    this.initializeTheme();
+    this.setupSystemThemeListener();
+    this.setupThemeEffect();
   }
 
   /**
-   * Set the current color scheme
+   * Configure the theme service
    */
-  setScheme(scheme: ColorScheme): void {
-    this.currentScheme = scheme;
-    this.applyTheme();
+  configure(config: Partial<ThemeConfig>): void {
+    Object.assign(this.config, config);
   }
 
   /**
-   * Get the current color scheme
+   * Set the current theme
+   * @param theme - Theme to set ('light', 'dark', or 'system')
    */
-  getScheme(): ColorScheme {
-    return this.currentScheme;
+  setTheme(theme: Theme): void {
+    this._theme.set(theme);
+    this.persistTheme(theme);
   }
 
   /**
    * Toggle between light and dark themes
    */
-  toggleScheme(): void {
-    this.currentScheme = this.currentScheme === 'light' ? 'dark' : 'light';
-    this.applyTheme();
+  toggleTheme(): void {
+    const current = this.resolvedTheme();
+    this.setTheme(current === 'light' ? 'dark' : 'light');
   }
 
   /**
-   * Apply the current theme to the document
+   * Get available themes
    */
-  private applyTheme(): void {
-    if (typeof document !== 'undefined') {
-      const root = document.documentElement;
+  getThemes(): string[] {
+    return this.config.themes;
+  }
 
-      // Remove previous theme classes
-      root.classList.remove('light', 'dark');
+  /**
+   * Check if a theme is available
+   */
+  isThemeAvailable(theme: string): boolean {
+    return this.config.themes.includes(theme);
+  }
 
-      // Add current theme class
-      root.classList.add(this.currentScheme);
-
-      // Update CSS custom properties
-      const themeCSS = generateThemeCSS(this.currentScheme);
-      this.injectThemeCSS(themeCSS);
+  /**
+   * Initialize theme from storage or system preference
+   */
+  private initializeTheme(): void {
+    // Try to get theme from storage
+    const storedTheme = this.getStoredTheme();
+    
+    if (storedTheme && this.isValidTheme(storedTheme)) {
+      this._theme.set(storedTheme);
+    } else {
+      this._theme.set(this.config.defaultTheme);
     }
+
+    // Initialize system theme
+    this.updateSystemTheme();
   }
 
   /**
-   * Inject theme CSS into the document head
+   * Setup system theme preference listener
    */
-  private injectThemeCSS(css: string): void {
-    if (typeof document !== 'undefined') {
-      let styleElement = document.getElementById('theme-css') as HTMLStyleElement;
+  private setupSystemThemeListener(): void {
+    if (typeof window === 'undefined' || !this.config.enableSystem) {
+      return;
+    }
 
-      if (!styleElement) {
-        styleElement = document.createElement('style');
-        styleElement.id = 'theme-css';
-        document.head.appendChild(styleElement);
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    // Update system theme when preference changes
+    mediaQuery.addEventListener('change', () => {
+      this.updateSystemTheme();
+    });
+  }
+
+  /**
+   * Setup effect to apply theme changes to DOM
+   */
+  private setupThemeEffect(): void {
+    effect(() => {
+      const resolvedTheme = this.resolvedTheme();
+      this.applyTheme(resolvedTheme);
+    });
+  }
+
+  /**
+   * Update system theme based on media query
+   */
+  private updateSystemTheme(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this._systemTheme.set(isDark ? 'dark' : 'light');
+  }
+
+  /**
+   * Apply theme to document element
+   */
+  private applyTheme(theme: ResolvedTheme): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const root = this.document.documentElement;
+
+    // Disable transitions temporarily if configured
+    if (this.config.disableTransitionOnChange) {
+      this.disableTransitions();
+    }
+
+    // Remove all theme classes/attributes
+    this.config.themes.forEach(t => {
+      if (this.config.attribute === 'class') {
+        this.renderer.removeClass(root, t);
+      } else {
+        this.renderer.removeAttribute(root, this.config.attribute);
       }
+    });
 
-      styleElement.textContent = css;
+    // Apply new theme
+    const themeValue = this.config.value[theme] || theme;
+    
+    if (this.config.attribute === 'class') {
+      this.renderer.addClass(root, themeValue);
+    } else {
+      this.renderer.setAttribute(root, this.config.attribute, themeValue);
     }
+
+    // Re-enable transitions
+    if (this.config.disableTransitionOnChange) {
+      setTimeout(() => this.enableTransitions(), 0);
+    }
+  }
+
+  /**
+   * Temporarily disable CSS transitions
+   */
+  private disableTransitions(): void {
+    const css = `*,*::before,*::after{-webkit-transition:none!important;-moz-transition:none!important;-o-transition:none!important;-ms-transition:none!important;transition:none!important}`;
+    const style = this.document.createElement('style');
+    style.appendChild(this.document.createTextNode(css));
+    this.document.head.appendChild(style);
+    
+    // Store reference for removal
+    (style as any).__themeTransitionDisabled = true;
+  }
+
+  /**
+   * Re-enable CSS transitions
+   */
+  private enableTransitions(): void {
+    const styles = this.document.head.querySelectorAll('style');
+    styles.forEach(style => {
+      if ((style as any).__themeTransitionDisabled) {
+        this.document.head.removeChild(style);
+      }
+    });
+  }
+
+  /**
+   * Persist theme to localStorage
+   */
+  private persistTheme(theme: Theme): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(this.config.storageKey, theme);
+    } catch (error) {
+      console.warn('Failed to save theme preference:', error);
+    }
+  }
+
+  /**
+   * Get stored theme from localStorage
+   */
+  private getStoredTheme(): Theme | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+
+    try {
+      return window.localStorage.getItem(this.config.storageKey) as Theme;
+    } catch (error) {
+      console.warn('Failed to read theme preference:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Check if theme value is valid
+   */
+  private isValidTheme(theme: string): theme is Theme {
+    return ['light', 'dark', 'system'].includes(theme);
   }
 }
 
 /**
- * Utility function to get theme-aware class names
+ * Theme provider function for standalone usage
+ * 
+ * @example
+ * ```typescript
+ * import { bootstrapApplication } from '@angular/platform-browser';
+ * import { provideTheme } from './lib/utils/theme';
+ * 
+ * bootstrapApplication(AppComponent, {
+ *   providers: [
+ *     provideTheme({
+ *       defaultTheme: 'dark',
+ *       storageKey: 'my-app-theme'
+ *     })
+ *   ]
+ * });
+ * ```
  */
-export function themedClass(baseClass: string, themeOverrides?: Record<ColorScheme, string>): string {
-  if (!themeOverrides) return baseClass;
-
-  const classes = [baseClass];
-
-  Object.entries(themeOverrides).forEach(([scheme, overrideClass]) => {
-    classes.push(`${scheme}:${overrideClass}`);
-  });
-
-  return classes.join(' ');
+export function provideTheme(config?: Partial<ThemeConfig>) {
+  return {
+    provide: ThemeService,
+    useFactory: () => {
+      const service = new ThemeService();
+      if (config) {
+        service.configure(config);
+      }
+      return service;
+    }
+  };
 }
 
 /**
- * Component variant resolver with theme support
+ * Generate CSS custom properties for themes
+ * 
+ * @param theme - Theme name to generate CSS for
+ * @returns CSS string with custom properties
  */
-export function resolveComponentVariant<T extends Record<string, any>>(
-  componentName: string,
-  variant: keyof T,
-  size?: keyof T[keyof T],
-  theme: ColorScheme = 'light'
-): string {
-  const baseClasses: string[] = [];
+export function generateThemeCSS(theme: 'light' | 'dark'): string {
+  const lightTheme = `
+    :root {
+      --background: 0 0% 100%;
+      --foreground: 222.2 84% 4.9%;
+      --card: 0 0% 100%;
+      --card-foreground: 222.2 84% 4.9%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 222.2 84% 4.9%;
+      --primary: 222.2 47.4% 11.2%;
+      --primary-foreground: 210 40% 98%;
+      --secondary: 210 40% 96%;
+      --secondary-foreground: 222.2 47.4% 11.2%;
+      --muted: 210 40% 96%;
+      --muted-foreground: 215.4 16.3% 46.9%;
+      --accent: 210 40% 96%;
+      --accent-foreground: 222.2 47.4% 11.2%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 210 40% 98%;
+      --border: 214.3 31.8% 91.4%;
+      --input: 214.3 31.8% 91.4%;
+      --ring: 222.2 84% 4.9%;
+      --radius: 0.5rem;
+    }
+  `;
 
-  // Add component base class
-  baseClasses.push(`${componentName}`);
+  const darkTheme = `
+    .dark {
+      --background: 222.2 84% 4.9%;
+      --foreground: 210 40% 98%;
+      --card: 222.2 84% 4.9%;
+      --card-foreground: 210 40% 98%;
+      --popover: 222.2 84% 4.9%;
+      --popover-foreground: 210 40% 98%;
+      --primary: 210 40% 98%;
+      --primary-foreground: 222.2 47.4% 11.2%;
+      --secondary: 217.2 32.6% 17.5%;
+      --secondary-foreground: 210 40% 98%;
+      --muted: 217.2 32.6% 17.5%;
+      --muted-foreground: 215 20.2% 65.1%;
+      --accent: 217.2 32.6% 17.5%;
+      --accent-foreground: 210 40% 98%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 210 40% 98%;
+      --border: 217.2 32.6% 17.5%;
+      --input: 217.2 32.6% 17.5%;
+      --ring: 212.7 26.8% 83.9%;
+    }
+  `;
 
-  // Add variant class
-  if (variant && variant !== 'default') {
-    baseClasses.push(`${componentName}-${String(variant)}`);
-  }
-
-  // Add size class
-  if (size && size !== 'default') {
-    baseClasses.push(`${componentName}-${String(size)}`);
-  }
-
-  // Add theme class
-  baseClasses.push(`${componentName}-theme-${theme}`);
-
-  return baseClasses.join(' ');
+  return theme === 'light' ? lightTheme : darkTheme;
 }
-
-/**
- * Color utility functions
- */
-export const colorUtils = {
-  /**
-   * Get a semantic color value
-   */
-  getSemanticColor: (color: keyof typeof semanticColors): string => {
-    return semanticColors[color];
-  },
-
-  /**
-   * Get component-specific colors
-   */
-  getComponentColor: (
-    component: keyof typeof componentColors,
-    variant: string,
-    property: string
-  ): string => {
-    const componentVariants = componentColors[component];
-    if (componentVariants && componentVariants[variant as keyof typeof componentVariants]) {
-      const variantColors = componentVariants[variant as keyof typeof componentVariants];
-      if (typeof variantColors === 'object' && property in variantColors) {
-        return variantColors[property as keyof typeof variantColors];
-      }
-    }
-    return '';
-  },
-
-  /**
-   * Generate color palette for a component
-   */
-  generateComponentPalette: (component: keyof typeof componentColors) => {
-    return componentColors[component];
-  },
-};
-
-/**
- * Typography utility functions
- */
-export const typographyUtils = {
-  /**
-   * Get typography styles for a text variant
-   */
-  getTypographyStyles: (variant: keyof typeof typography) => {
-    return typography[variant];
-  },
-
-  /**
-   * Get text utility class
-   */
-  getTextClass: (variant: keyof typeof textUtilities): string => {
-    return textUtilities[variant];
-  },
-
-  /**
-   * Generate responsive typography classes
-   */
-  responsiveText: (mobile: string, tablet?: string, desktop?: string): string => {
-    const classes = [mobile];
-    if (tablet) classes.push(`sm:${tablet}`);
-    if (desktop) classes.push(`md:${desktop}`);
-    return classes.join(' ');
-  },
-};
-
-/**
- * Spacing utility functions
- */
-export const spacingUtils = {
-  /**
-   * Get semantic spacing value
-   */
-  getSemanticSpacing: (category: keyof typeof semanticSpacing, subcategory: string, size: string) => {
-    const categorySpacing = semanticSpacing[category];
-    if (categorySpacing && typeof categorySpacing === 'object') {
-      const subcategorySpacing = (categorySpacing as any)[subcategory];
-      if (subcategorySpacing && typeof subcategorySpacing === 'object') {
-        return subcategorySpacing[size] || '';
-      }
-    }
-    return '';
-  },
-
-  /**
-   * Generate responsive spacing classes
-   */
-  responsiveSpacing: (property: 'p' | 'm' | 'gap', mobile: string, tablet?: string, desktop?: string): string => {
-    const classes = [`${property}-${mobile}`];
-    if (tablet) classes.push(`sm:${property}-${tablet}`);
-    if (desktop) classes.push(`md:${property}-${desktop}`);
-    return classes.join(' ');
-  },
-};
-
-/**
- * Export utilities for easy access
- */
-export const themeUtils = {
-  colors: colorUtils,
-  typography: typographyUtils,
-  spacing: spacingUtils,
-  themedClass,
-  resolveComponentVariant,
-  generateThemeCSS,
-};

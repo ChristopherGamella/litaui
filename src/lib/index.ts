@@ -22,8 +22,12 @@ export * from './components/ui/modal.component';
 export * from './components/ui/badge.component';
 export * from './components/ui/alert.component';
 export * from './components/ui/select.component';
+export * from './components/ui/avatar.component';
+export * from './components/ui/switch.component';
+export * from './components/ui/tooltip.component';
 export * from './components/ui/demo.component';
-export * from './components/ui/comprehensive-demo.component';
+export * from './components/ui/button-demo.component';
+export * from './components/ui/shadcn-showcase.component';
 
 // Future components (will be added as they are created)
 // export * from './components/ui/badge';
