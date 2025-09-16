@@ -1,13 +1,13 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ButtonComponent } from './button.component';
-import { BadgeComponent } from './badge.component';
-import { CardComponent } from './card.component';
-import { InputComponent } from './input.component';
-import { AlertComponent } from './alert.component';
-import { AvatarComponent } from './avatar.component';
-import { SwitchComponent } from './switch.component';
+import { ButtonComponent } from '../../components/ui/button.component';
+import { BadgeComponent } from '../../components/ui/badge.component';
+import { CardComponent } from '../../components/ui/card.component';
+import { InputComponent } from '../../components/ui/input.component';
+import { AlertComponent } from '../../components/ui/alert.component';
+import { AvatarComponent } from '../../components/ui/avatar.component';
+import { SwitchComponent } from '../../components/ui/switch.component';
 import { ThemeService } from '../../utils/theme';
 import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code2, Copy, Check } from 'lucide-angular';
 

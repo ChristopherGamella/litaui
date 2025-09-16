@@ -8,27 +8,27 @@ export const routes: Routes = [
   },
   {
     path: 'test',
-    loadComponent: () => import('../lib/components/ui/button-test.component').then(c => c.ButtonTestComponent),
+    loadComponent: () => import('../lib/demo/components/button-test.component').then(c => c.ButtonTestComponent),
     title: 'Button Test'
   },
   {
     path: 'minimal',
-    loadComponent: () => import('../lib/components/ui/minimal-demo.component').then(c => c.MinimalDemoComponent),
+    loadComponent: () => import('../lib/demo/components/minimal-demo.component').then(c => c.MinimalDemoComponent),
     title: 'Minimal Demo'
   },
   {
     path: 'button-demo',
-    loadComponent: () => import('../lib/components/ui/button-demo.component').then(c => c.ButtonDemoComponent),
+    loadComponent: () => import('../lib/demo/components/button-demo.component').then(c => c.ButtonDemoComponent),
     title: 'Button Demo'
   },
   {
     path: 'demo',
-    loadComponent: () => import('../lib/components/ui/demo.component').then(c => c.DemoComponent),
+    loadComponent: () => import('../lib/demo/components/demo.component').then(c => c.DemoComponent),
     title: 'Component Demo'
   },
   {
     path: 'comprehensive',
-    loadComponent: () => import('../lib/components/ui/shadcn-showcase.component').then(c => c.ShadcnShowcaseComponent),
+    loadComponent: () => import('../lib/demo/components/shadcn-showcase.component').then(c => c.ShadcnShowcaseComponent),
     title: 'Comprehensive Demo'
   },
   {

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SimpleButtonComponent } from './simple-button.component';
+import { SimpleButtonComponent } from '../../components/ui/simple-button.component';
 
 /**
  * Ultra-minimal button demo for maximum performance

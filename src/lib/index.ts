@@ -25,9 +25,13 @@ export * from './components/ui/select.component';
 export * from './components/ui/avatar.component';
 export * from './components/ui/switch.component';
 export * from './components/ui/tooltip.component';
-export * from './components/ui/demo.component';
-export * from './components/ui/button-demo.component';
-export * from './components/ui/shadcn-showcase.component';
+
+// Export demo components from new location
+export * from './demo/components/demo.component';
+export * from './demo/components/button-demo.component';
+export * from './demo/components/button-test.component';
+export * from './demo/components/minimal-demo.component';
+export * from './demo/components/shadcn-showcase.component';
 
 // Future components (will be added as they are created)
 // export * from './components/ui/badge';

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ButtonComponent } from './button.component';
-import { SimpleButtonComponent } from './simple-button.component';
+import { ButtonComponent } from '../../components/ui/button.component';
+import { SimpleButtonComponent } from '../../components/ui/simple-button.component';
 
 /**
  * Test button demo to debug text display issues

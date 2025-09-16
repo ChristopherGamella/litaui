@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Star, Heart, Download, Settings } from 'lucide-angular';
-import { ButtonComponent } from './button.component';
+import { ButtonComponent } from '../../components/ui/button.component';
 
 /**
  * Demo component showcasing the shadcn-inspired Angular component library

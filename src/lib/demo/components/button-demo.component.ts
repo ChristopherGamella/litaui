@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ButtonComponent } from './button.component';
+import { ButtonComponent } from '../../components/ui/button.component';
 
 /**
  * Minimal button demo component for performance testing
