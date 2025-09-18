@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostBinding, ElementRef, ViewChild, AfterViewInit, forwardRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostBinding, ElementRef, ViewChild, AfterViewInit, forwardRef, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
@@ -94,7 +94,7 @@ export type InputVariant = VariantProps<typeof inputVariants>;
           (click)="clearInput()"
           [attr.aria-label]="'Clear ' + (ariaLabel || 'input')"
         >
-          <lucide-angular [img]="XIcon" size="16"></lucide-angular>
+          <lucide-angular [img]="XIcon()" size="16"></lucide-angular>
         </button>
       }
     </div>
@@ -170,7 +170,7 @@ export class InputComponent implements InputProps, AfterViewInit, ControlValueAc
   @Output() valueChange = new EventEmitter<string | number>();
 
   // Icon imports (for clear button)
-  XIcon: any;
+  XIcon = signal<any>(null);
 
   // ControlValueAccessor callbacks
   private onChange = (value: string | number) => {};
@@ -179,7 +179,7 @@ export class InputComponent implements InputProps, AfterViewInit, ControlValueAc
   constructor() {
     // Dynamic import for X icon (clear button)
     import('lucide-angular').then(({ X }) => {
-      this.XIcon = X;
+      this.XIcon.set(X);
     });
   }
 

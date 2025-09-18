@@ -218,7 +218,7 @@ export const tabContentVariants = cva(
                 (click)="closeTab($event, tab.id)"
                 [attr.aria-label]="'Close ' + tab.label"
               >
-                <lucide-angular [img]="XIcon" class="h-3 w-3"></lucide-angular>
+                <lucide-angular [img]="XIcon()" class="h-3 w-3"></lucide-angular>
               </button>
             }
           </button>
@@ -314,7 +314,7 @@ export class TabsComponent implements OnInit {
   readonly tabSelected = output<TabItem>();
 
   // Icons
-  XIcon: any;
+  XIcon = signal<any>(null);
 
   // Internal state
   private focusedTabIndex = signal(0);
@@ -322,7 +322,7 @@ export class TabsComponent implements OnInit {
   constructor() {
     // Dynamic import for X icon
     import('lucide-angular').then(({ X }) => {
-      this.XIcon = X;
+      this.XIcon.set(X);
     });
   }
 

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostBinding, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostBinding, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { cva, type VariantProps } from '../../utils/cn';
@@ -77,7 +77,7 @@ export type AlertVariant = VariantProps<typeof alertVariants>;
           (click)="handleDismiss($event)"
           [attr.aria-label]="'Dismiss ' + (title || 'alert')"
         >
-          <lucide-angular [img]="XIcon" size="16"></lucide-angular>
+          <lucide-angular [img]="XIcon()" size="16"></lucide-angular>
         </button>
       }
     </div>
@@ -149,12 +149,12 @@ export class AlertComponent implements AlertProps {
   private autoCloseTimer?: number;
 
   // Icon imports (for dismiss button)
-  XIcon: any;
+  XIcon = signal<any>(null);
 
   constructor() {
     // Dynamic import for X icon (dismiss button)
     import('lucide-angular').then(({ X }) => {
-      this.XIcon = X;
+      this.XIcon.set(X);
     });
   }
 

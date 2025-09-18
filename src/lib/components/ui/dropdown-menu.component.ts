@@ -186,8 +186,8 @@ export const dropdownLabelVariants = cva(
                   @if (item.type === 'checkbox' || item.type === 'radio') {
                     <span class="w-4 h-4 flex items-center justify-center">
                       @if (item.checked) {
-                        <lucide-angular 
-                          [img]="item.type === 'checkbox' ? CheckIcon : CircleIcon" 
+                        <lucide-angular
+                          [img]="item.type === 'checkbox' ? CheckIcon() : CircleIcon()"
                           class="h-3 w-3"
                         ></lucide-angular>
                       }
@@ -217,7 +217,7 @@ export const dropdownLabelVariants = cva(
                   
                   <!-- Submenu indicator -->
                   @if (item.submenu && item.submenu.length > 0) {
-                    <lucide-angular [img]="ChevronRightIcon" class="h-4 w-4 ml-auto"></lucide-angular>
+                    <lucide-angular [img]="ChevronRightIcon()" class="h-4 w-4 ml-auto"></lucide-angular>
                   }
                 </div>
                 
@@ -367,9 +367,9 @@ export class DropdownMenuComponent implements OnInit, OnDestroy {
   @ViewChild('dropdownContainer') dropdownContainer!: ElementRef<HTMLElement>;
 
   // Icons
-  CheckIcon: any;
-  CircleIcon: any;
-  ChevronRightIcon: any;
+  CheckIcon = signal<any>(null);
+  CircleIcon = signal<any>(null);
+  ChevronRightIcon = signal<any>(null);
 
   // Internal state
   private _isOpen = signal(false);
@@ -379,9 +379,9 @@ export class DropdownMenuComponent implements OnInit, OnDestroy {
   constructor() {
     // Dynamic import for icons
     import('lucide-angular').then(({ Check, Circle, ChevronRight }) => {
-      this.CheckIcon = Check;
-      this.CircleIcon = Circle;
-      this.ChevronRightIcon = ChevronRight;
+      this.CheckIcon.set(Check);
+      this.CircleIcon.set(Circle);
+      this.ChevronRightIcon.set(ChevronRight);
     });
   }
 
@@ -396,7 +396,7 @@ export class DropdownMenuComponent implements OnInit, OnDestroy {
   // Listen for clicks outside to close dropdown
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
-    if (!this.dropdownContainer.nativeElement.contains(event.target as Node)) {
+    if (this.dropdownContainer && !this.dropdownContainer.nativeElement.contains(event.target as Node)) {
       this.close();
     }
   }

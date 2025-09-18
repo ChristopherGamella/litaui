@@ -149,7 +149,7 @@ export const breadcrumbSeparatorVariants = cva(
                     [attr.aria-label]="'Show ' + collapsedItems().length + ' more items'"
                     (click)="toggleEllipsis()"
                   >
-                    <lucide-angular [img]="MoreHorizontalIcon" class="h-4 w-4"></lucide-angular>
+                    <lucide-angular [img]="MoreHorizontalIcon()" class="h-4 w-4"></lucide-angular>
                   </button>
                   
                   @if (showEllipsisMenu()) {
@@ -224,7 +224,7 @@ export const breadcrumbSeparatorVariants = cva(
               
               <!-- Separator (not for last item) -->
               @if (i < displayItems().length - 1) {
-                <lucide-angular [img]="separator()" [class]="separatorClasses()"></lucide-angular>
+                <lucide-angular [img]="currentSeparator()" [class]="separatorClasses()"></lucide-angular>
               }
             }
           </li>
@@ -295,9 +295,9 @@ export class BreadcrumbComponent {
   readonly itemClicked = output<{ item: BreadcrumbItem; event?: Event }>();
 
   // Icons
-  ChevronRightIcon: any;
-  SlashIcon: any;
-  MoreHorizontalIcon: any;
+  ChevronRightIcon = signal<any>(null);
+  SlashIcon = signal<any>(null);
+  MoreHorizontalIcon = signal<any>(null);
 
   // Internal state
   private _showEllipsisMenu = signal(false);
@@ -305,9 +305,9 @@ export class BreadcrumbComponent {
   constructor() {
     // Dynamic import for icons
     import('lucide-angular').then(({ ChevronRight, Slash, MoreHorizontal }) => {
-      this.ChevronRightIcon = ChevronRight;
-      this.SlashIcon = Slash;
-      this.MoreHorizontalIcon = MoreHorizontal;
+      this.ChevronRightIcon.set(ChevronRight);
+      this.SlashIcon.set(Slash);
+      this.MoreHorizontalIcon.set(MoreHorizontal);
     });
   }
 
@@ -362,7 +362,7 @@ export class BreadcrumbComponent {
    * Get the current separator icon
    */
   readonly currentSeparator = computed(() => {
-    return this.separator() || this.ChevronRightIcon;
+    return this.separator() || this.ChevronRightIcon();
   });
 
   /**

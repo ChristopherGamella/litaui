@@ -188,8 +188,8 @@ export const accordionContentVariants = cva(
               }
               
               <!-- Chevron Icon -->
-              <lucide-angular 
-                [img]="ChevronDownIcon" 
+              <lucide-angular
+                [img]="ChevronDownIcon()"
                 class="h-4 w-4 shrink-0 transition-transform duration-200"
               ></lucide-angular>
             </button>
@@ -315,7 +315,7 @@ export class AccordionComponent implements OnInit {
   readonly expandedChanged = output<string[]>();
 
   // Icons
-  ChevronDownIcon: any;
+  ChevronDownIcon = signal<any>(null);
 
   // Internal state
   private expandedItems = signal<Set<string>>(new Set());
@@ -323,7 +323,7 @@ export class AccordionComponent implements OnInit {
   constructor() {
     // Dynamic import for chevron icon
     import('lucide-angular').then(({ ChevronDown }) => {
-      this.ChevronDownIcon = ChevronDown;
+      this.ChevronDownIcon.set(ChevronDown);
     });
   }
 

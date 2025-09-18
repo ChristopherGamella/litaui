@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostBinding } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostBinding, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { cva, type VariantProps } from '../../utils/cn';
@@ -77,7 +77,7 @@ export type BadgeVariant = VariantProps<typeof badgeVariants>;
           (click)="handleDismiss($event)"
           [attr.aria-label]="'Remove ' + (ariaLabel || 'badge')"
         >
-          <lucide-angular [img]="XIcon" size="10"></lucide-angular>
+          <lucide-angular [img]="XIcon()" size="10"></lucide-angular>
         </button>
       }
     </span>
@@ -120,12 +120,12 @@ export class BadgeComponent implements BadgeProps {
   @Output() onDismiss = new EventEmitter<void>();
 
   // Icon imports (for dismiss button)
-  XIcon: any;
+  XIcon = signal<any>(null);
 
   constructor() {
     // Dynamic import for X icon (dismiss button)
     import('lucide-angular').then(({ X }) => {
-      this.XIcon = X;
+      this.XIcon.set(X);
     });
   }
 

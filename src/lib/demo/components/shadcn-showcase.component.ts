@@ -14,7 +14,7 @@ import { AccordionComponent, AccordionItem } from '../../components/ui/accordion
 import { DropdownMenuComponent, DropdownMenuItem } from '../../components/ui/dropdown-menu.component';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../components/ui/breadcrumb.component';
 import { ThemeService } from '../../utils/theme';
-import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code2, Copy, Check, Info, AlertTriangle, Home, ChevronRight, Menu, Archive, Folder, File } from 'lucide-angular';
+import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check, Info, AlertTriangle, Home, ChevronRight, Menu, Archive, Folder, File } from 'lucide-angular';
 
 /**
  * Comprehensive demo component showcasing all shadcn/ui Angular components
@@ -554,8 +554,8 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code2, Copy, Chec
 })
 export class ShadcnShowcaseComponent implements OnInit {
   // Icons
-  readonly Code2Icon = Code2;
-  readonly CodeIcon = Code2;
+  readonly Code2Icon = Code;
+  readonly CodeIcon = Code;
   readonly MoonIcon = Moon;
   readonly SunIcon = Sun;
   readonly MailIcon = Mail;
