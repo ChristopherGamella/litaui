@@ -24,6 +24,7 @@ import { SimpleButtonComponent } from '../../components/ui/simple-button.compone
         <div class="flex flex-wrap gap-4 mb-4">
           <lib-button variant="default">Default Button</lib-button>
           <lib-button variant="secondary">Secondary Button</lib-button>
+          <lib-button variant="success">Success Button</lib-button>
           <lib-button variant="outline">Outline Button</lib-button>
           <lib-button variant="ghost">Ghost Button</lib-button>
           <lib-button variant="destructive">Destructive Button</lib-button>

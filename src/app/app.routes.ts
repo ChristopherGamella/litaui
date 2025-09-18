@@ -22,6 +22,16 @@ export const routes: Routes = [
     title: 'Comprehensive Demo'
   },
   {
+    path: 'checkbox',
+    loadComponent: () => import('../lib/demo/components/checkbox-demo.component').then(c => c.CheckboxDemoComponent),
+    title: 'Checkbox Demo'
+  },
+  {
+    path: 'checkbox-test',
+    loadComponent: () => import('../lib/demo/components/checkbox-test.component').then(c => c.CheckboxTestComponent),
+    title: 'Checkbox Test'
+  },
+  {
     path: '**',
     redirectTo: '/test'
   }

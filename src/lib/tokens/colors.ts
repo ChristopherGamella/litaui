@@ -127,6 +127,10 @@ export const semanticColors = {
   destructive: colors.error[500],
   'destructive-foreground': colors.white,
 
+  // Success colors
+  success: colors.success[600],
+  'success-foreground': colors.white,
+
   // Border colors
   border: colors.primary[100],
   input: colors.primary[100],

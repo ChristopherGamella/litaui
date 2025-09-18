@@ -1,9 +1,8 @@
-import { Component, Input, Output, EventEmitter, HostBinding, ElementRef, ViewChild, AfterViewInit, forwardRef, signal } from '@angular/core';
+import { Component, HostBinding, ElementRef, ViewChild, AfterViewInit, forwardRef, signal, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import { cva, type VariantProps } from '../../utils/cn';
-import { InputProps } from '../../types';
 
 /**
  * Input variants configuration
@@ -51,28 +50,28 @@ export type InputVariant = VariantProps<typeof inputVariants>;
   template: `
     <div class="relative">
       <!-- Left Icon -->
-      @if (leftIcon) {
+      @if (leftIcon()) {
         <div class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-          <lucide-angular [img]="leftIcon" size="16"></lucide-angular>
+          <lucide-angular [img]="leftIcon()" size="16"></lucide-angular>
         </div>
       }
 
       <!-- Input Element -->
       <input
         #inputElement
-        [type]="type"
-        [placeholder]="placeholder"
-        [value]="value"
-        [disabled]="disabled"
-        [readonly]="readonly"
-        [required]="required"
-        [attr.aria-label]="ariaLabel"
-        [attr.aria-describedby]="ariaDescribedBy"
-        [attr.aria-invalid]="error"
-        [attr.data-testid]="dataTestid"
-        [class]="inputClasses"
-        [class.pl-10]="leftIcon"
-        [class.pr-10]="rightIcon || clearable"
+        [type]="type()"
+        [placeholder]="placeholder()"
+        [value]="currentValue"
+        [disabled]="isDisabled()"
+        [readonly]="readonly()"
+        [required]="required()"
+        [attr.aria-label]="ariaLabel()"
+        [attr.aria-describedby]="ariaDescribedBy()"
+        [attr.aria-invalid]="error()"
+        [attr.data-testid]="dataTestid()"
+        [class]="inputClasses()"
+        [class.pl-10]="leftIcon()"
+        [class.pr-10]="rightIcon() || clearable()"
         (input)="handleInput($event)"
         (focus)="focusChange.emit($event)"
         (blur)="handleBlur($event)"
@@ -80,19 +79,19 @@ export type InputVariant = VariantProps<typeof inputVariants>;
       />
 
       <!-- Right Icon or Clear Button -->
-      @if (rightIcon && !clearable) {
+      @if (rightIcon() && !clearable()) {
         <div class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-          <lucide-angular [img]="rightIcon" size="16"></lucide-angular>
+          <lucide-angular [img]="rightIcon()" size="16"></lucide-angular>
         </div>
       }
 
       <!-- Clear Button -->
-      @if (clearable && value && !disabled && !readonly) {
+      @if (clearable() && currentValue && !isDisabled() && !readonly()) {
         <button
           type="button"
           class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
           (click)="clearInput()"
-          [attr.aria-label]="'Clear ' + (ariaLabel || 'input')"
+          [attr.aria-label]="'Clear ' + (ariaLabel() || 'input')"
         >
           <lucide-angular [img]="XIcon()" size="16"></lucide-angular>
         </button>
@@ -100,16 +99,16 @@ export type InputVariant = VariantProps<typeof inputVariants>;
     </div>
 
     <!-- Helper Text -->
-    @if (helperText) {
-      <p class="mt-1 text-xs text-muted-foreground" [id]="ariaDescribedBy">
-        {{ helperText }}
+    @if (helperText()) {
+      <p class="mt-1 text-xs text-muted-foreground" [id]="ariaDescribedBy()">
+        {{ helperText() }}
       </p>
     }
 
     <!-- Error Message -->
-    @if (error && errorMessage) {
-      <p class="mt-1 text-xs text-destructive" [id]="ariaDescribedBy">
-        {{ errorMessage }}
+    @if (error() && errorMessage()) {
+      <p class="mt-1 text-xs text-destructive" [id]="ariaDescribedBy()">
+        {{ errorMessage() }}
       </p>
     }
   `,
@@ -136,38 +135,45 @@ export type InputVariant = VariantProps<typeof inputVariants>;
     }
   `]
 })
-export class InputComponent implements InputProps, AfterViewInit, ControlValueAccessor {
+export class InputComponent implements AfterViewInit, ControlValueAccessor {
   @ViewChild('inputElement', { static: true }) inputElement!: ElementRef<HTMLInputElement>;
 
-  // Component inputs
-  @Input() type: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search' = 'text';
-  @Input() variant: 'default' | 'error' | 'success' = 'default';
-  @Input() size: 'sm' | 'md' | 'lg' = 'md';
-  @Input() placeholder?: string;
-  @Input() value?: string | number = '';
-  @Input() disabled = false;
-  @Input() readonly = false;
-  @Input() required = false;
-  @Input() error = false;
-  @Input() errorMessage?: string;
-  @Input() helperText?: string;
-  @Input() leftIcon?: any;
-  @Input() rightIcon?: any;
-  @Input() clearable = false;
-  @Input() id?: string;
-  @Input() class?: string;
-  @Input() dataTestid?: string;
+  // Signal inputs (fully zoneless)
+  readonly type = input<'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'search'>('text');
+  readonly variant = input<'default' | 'error' | 'success'>('default');
+  readonly size = input<'sm' | 'md' | 'lg'>('md');
+  readonly placeholder = input<string>();
+  readonly value = input<string | number>('');
+  readonly disabled = input<boolean>(false);
+  readonly readonly = input<boolean>(false);
+  readonly required = input<boolean>(false);
+  readonly error = input<boolean>(false);
+  readonly errorMessage = input<string>();
+  readonly helperText = input<string>();
+  readonly leftIcon = input<any>();
+  readonly rightIcon = input<any>();
+  readonly clearable = input<boolean>(false);
+  readonly id = input<string>();
+  readonly class = input<string>();
+  readonly dataTestid = input<string>();
 
   // Accessibility inputs
-  @Input() ariaLabel?: string;
-  @Input() ariaDescribedBy?: string;
+  readonly ariaLabel = input<string>();
+  readonly ariaDescribedBy = input<string>();
 
-  // Event outputs
-  @Output() inputChange = new EventEmitter<Event>();
-  @Output() focusChange = new EventEmitter<FocusEvent>();
-  @Output() blurChange = new EventEmitter<FocusEvent>();
-  @Output() keydownChange = new EventEmitter<KeyboardEvent>();
-  @Output() valueChange = new EventEmitter<string | number>();
+  // Signal outputs (fully zoneless)
+  readonly inputChange = output<Event>();
+  readonly focusChange = output<FocusEvent>();
+  readonly blurChange = output<FocusEvent>();
+  readonly keydownChange = output<KeyboardEvent>();
+  readonly valueChange = output<string | number>();
+
+  // Internal state signals
+  private _currentValue = signal<string | number>('');
+  readonly _disabled = signal<boolean>(false);
+
+  // Computed disabled state
+  readonly isDisabled = computed(() => this.disabled() || this._disabled());
 
   // Icon imports (for clear button)
   XIcon = signal<any>(null);
@@ -193,20 +199,28 @@ export class InputComponent implements InputProps, AfterViewInit, ControlValueAc
   /**
    * Computed input classes using the variant system
    */
-  get inputClasses(): string {
+  readonly inputClasses = computed(() => {
     const variantClasses = inputVariants({
-      variant: this.variant,
-      size: this.size,
+      variant: this.variant(),
+      size: this.size(),
     } as any);
 
     const classes = [variantClasses];
 
     // Add custom class if provided
-    if (this.class) {
-      classes.push(this.class);
+    const customClass = this.class();
+    if (customClass) {
+      classes.push(customClass);
     }
 
     return classes.join(' ');
+  });
+
+  /**
+   * Current value getter
+   */
+  get currentValue(): string | number {
+    return this._currentValue();
   }
 
   /**
@@ -214,11 +228,11 @@ export class InputComponent implements InputProps, AfterViewInit, ControlValueAc
    */
   handleInput(event: Event): void {
     const target = event.target as HTMLInputElement;
-    this.value = target.value;
-    this.valueChange.emit(this.value);
+    this._currentValue.set(target.value);
+    this.valueChange.emit(this._currentValue());
     this.inputChange.emit(event);
     // Notify form control of change
-    this.onChange(this.value);
+    this.onChange(this._currentValue());
   }
 
   /**
@@ -233,8 +247,8 @@ export class InputComponent implements InputProps, AfterViewInit, ControlValueAc
    * Clear input value
    */
   clearInput(): void {
-    this.value = '';
-    this.valueChange.emit(this.value);
+    this._currentValue.set('');
+    this.valueChange.emit(this._currentValue());
 
     // Focus back to input after clearing
     if (this.inputElement) {
@@ -269,9 +283,9 @@ export class InputComponent implements InputProps, AfterViewInit, ControlValueAc
 
   // ControlValueAccessor implementation
   writeValue(value: string | number): void {
-    this.value = value || '';
+    this._currentValue.set(value || '');
     if (this.inputElement) {
-      this.inputElement.nativeElement.value = String(this.value);
+      this.inputElement.nativeElement.value = String(this._currentValue());
     }
   }
 
@@ -284,6 +298,6 @@ export class InputComponent implements InputProps, AfterViewInit, ControlValueAc
   }
 
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this._disabled.set(isDisabled);
   }
 }

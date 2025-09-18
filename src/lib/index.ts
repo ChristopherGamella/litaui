@@ -26,6 +26,7 @@ export * from './components/ui/avatar.component';
 export * from './components/ui/switch.component';
 export * from './components/ui/tooltip.component';
 export * from './components/ui/simple-button.component';
+export * from './components/ui/checkbox.component';
 
 // Export new components
 export { ProgressComponent } from './components/ui/progress.component';
@@ -33,11 +34,14 @@ export { TabsComponent } from './components/ui/tabs.component';
 export { AccordionComponent } from './components/ui/accordion.component';
 export { DropdownMenuComponent } from './components/ui/dropdown-menu.component';
 export { BreadcrumbComponent } from './components/ui/breadcrumb.component';
+export { PopoverComponent } from './components/ui/popover.component';
 
 // Export demo components from new location
 export * from './demo/components/demo.component';
 export * from './demo/components/button-test.component';
 export * from './demo/components/shadcn-showcase.component';
+export * from './demo/components/modal-test.component';
+export { PopoverDemoComponent } from './demo/components/popover-demo.component';
 
 // Future components (will be added as they are created)
 // export * from './components/ui/badge';

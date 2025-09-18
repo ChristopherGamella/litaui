@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostBinding, inject, signal } from '@angular/core';
+import { Component, computed, input, output, HostBinding, inject, signal, OnInit, OnDestroy, AfterContentInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { cva, type VariantProps } from '../../utils/cn';
@@ -39,29 +39,29 @@ export type AlertVariant = VariantProps<typeof alertVariants>;
   template: `
     <div
       role="alert"
-      [class]="alertClasses"
-      [attr.data-testid]="dataTestid"
+      [class]="alertClasses()"
+      [attr.data-testid]="dataTestid()"
     >
       <!-- Icon -->
-      @if (icon) {
-        <lucide-angular [img]="icon" size="16" class="flex-shrink-0"></lucide-angular>
+      @if (icon()) {
+        <lucide-angular [img]="icon()" size="16" class="flex-shrink-0"></lucide-angular>
       }
 
       <!-- Content -->
       <div class="flex-1">
         <!-- Title -->
-        @if (title) {
+        @if (title()) {
           <h5 class="mb-1 font-medium leading-none tracking-tight text-foreground">
-            {{ title }}
+            {{ title() }}
           </h5>
         }
 
         <!-- Description -->
-        @if (description) {
+        @if (description()) {
           <div class="text-sm text-muted-foreground">
             <ng-content></ng-content>
             @if (!hasProjectedContent) {
-              {{ description }}
+              {{ description() }}
             }
           </div>
         } @else {
@@ -70,12 +70,12 @@ export type AlertVariant = VariantProps<typeof alertVariants>;
       </div>
 
       <!-- Dismiss Button -->
-      @if (dismissible) {
+      @if (dismissible()) {
         <button
           type="button"
           class="absolute right-4 top-4 flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity"
           (click)="handleDismiss($event)"
-          [attr.aria-label]="'Dismiss ' + (title || 'alert')"
+          [attr.aria-label]="'Dismiss ' + (title() || 'alert')"
         >
           <lucide-angular [img]="XIcon()" size="16"></lucide-angular>
         </button>
@@ -128,21 +128,21 @@ export type AlertVariant = VariantProps<typeof alertVariants>;
     }
   `]
 })
-export class AlertComponent implements AlertProps {
-  // Component inputs
-  @Input() variant: 'default' | 'destructive' | 'success' | 'warning' | 'info' = 'default';
-  @Input() title?: string;
-  @Input() description?: string;
-  @Input() icon?: any;
-  @Input() dismissible = false;
-  @Input() autoClose?: number; // Auto close timeout in milliseconds
-  @Input() id?: string;
-  @Input() class?: string;
-  @Input() dataTestid?: string;
+export class AlertComponent implements OnInit, OnDestroy, AfterContentInit {
+  // Signal inputs
+  readonly variant = input<'default' | 'destructive' | 'success' | 'warning' | 'info'>('default');
+  readonly title = input<string>();
+  readonly description = input<string>();
+  readonly icon = input<any>();
+  readonly dismissible = input<boolean>(false);
+  readonly autoClose = input<number>(); // Auto close timeout in milliseconds
+  readonly id = input<string>();
+  readonly class = input<string>();
+  readonly dataTestid = input<string>();
 
-  // Event outputs
-  @Output() onDismiss = new EventEmitter<void>();
-  @Output() onAutoClose = new EventEmitter<void>();
+  // Signal outputs
+  readonly onDismiss = output<void>();
+  readonly onAutoClose = output<void>();
 
   // Internal state
   hasProjectedContent = false;
@@ -160,11 +160,12 @@ export class AlertComponent implements AlertProps {
 
   ngOnInit(): void {
     // Set up auto-close timer if specified
-    if (this.autoClose && this.autoClose > 0) {
+    const autoCloseValue = this.autoClose();
+    if (autoCloseValue && autoCloseValue > 0) {
       this.autoCloseTimer = window.setTimeout(() => {
         this.handleAutoClose();
         // Change detection is automatic with signals
-      }, this.autoClose);
+      }, autoCloseValue);
     }
   }
 
@@ -183,20 +184,21 @@ export class AlertComponent implements AlertProps {
   /**
    * Computed alert classes using the variant system
    */
-  get alertClasses(): string {
+  readonly alertClasses = computed(() => {
     const variantClasses = alertVariants({
-      variant: this.variant as any,
+      variant: this.variant() as any,
     });
 
     const classes = [variantClasses];
 
     // Add custom class if provided
-    if (this.class) {
-      classes.push(this.class);
+    const customClass = this.class();
+    if (customClass) {
+      classes.push(customClass);
     }
 
     return classes.join(' ');
-  }
+  });
 
   /**
    * Handle alert dismissal
@@ -239,7 +241,7 @@ export class AlertComponent implements AlertProps {
   getVariantIcon(): any {
     // This could return default icons based on variant
     // For now, users should provide their own icons
-    return this.icon;
+    return this.icon();
   }
 }
 

@@ -1,8 +1,5 @@
 import { 
   Component, 
-  Input, 
-  Output, 
-  EventEmitter, 
   computed, 
   input, 
   output, 
@@ -76,7 +73,7 @@ export const dropdownContentVariants = cva(
  * Dropdown item variant configuration
  */
 export const dropdownItemVariants = cva(
-  "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+  "relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
   {
     variants: {
       variant: {
@@ -185,7 +182,7 @@ export const dropdownLabelVariants = cva(
                   <!-- Checkbox/Radio indicator -->
                   @if (item.type === 'checkbox' || item.type === 'radio') {
                     <span class="w-4 h-4 flex items-center justify-center">
-                      @if (item.checked) {
+                      @if (item.checked && ((item.type === 'checkbox' && CheckIcon() && CheckIcon() !== null) || (item.type === 'radio' && CircleIcon() && CircleIcon() !== null))) {
                         <lucide-angular
                           [img]="item.type === 'checkbox' ? CheckIcon() : CircleIcon()"
                           class="h-3 w-3"
@@ -195,7 +192,7 @@ export const dropdownLabelVariants = cva(
                   }
                   
                   <!-- Icon -->
-                  @if (item.icon && item.type !== 'checkbox' && item.type !== 'radio') {
+                  @if (item.icon && item.icon !== null && item.icon !== undefined && item.type !== 'checkbox' && item.type !== 'radio') {
                     <lucide-angular [img]="item.icon" class="h-4 w-4"></lucide-angular>
                   }
                   
@@ -216,7 +213,7 @@ export const dropdownLabelVariants = cva(
                   }
                   
                   <!-- Submenu indicator -->
-                  @if (item.submenu && item.submenu.length > 0) {
+                  @if (item.submenu && item.submenu.length > 0 && ChevronRightIcon() && ChevronRightIcon() !== null) {
                     <lucide-angular [img]="ChevronRightIcon()" class="h-4 w-4 ml-auto"></lucide-angular>
                   }
                 </div>
@@ -233,7 +230,7 @@ export const dropdownLabelVariants = cva(
                           role="menuitem"
                           (click)="selectItem(subItem, $event)"
                         >
-                          @if (subItem.icon) {
+                          @if (subItem.icon && subItem.icon !== null && subItem.icon !== undefined) {
                             <lucide-angular [img]="subItem.icon" class="h-4 w-4"></lucide-angular>
                           }
                           <span>{{ subItem.label }}</span>
@@ -352,12 +349,12 @@ export class DropdownMenuComponent implements OnInit, OnDestroy {
   readonly disabled = input<boolean>(false);
   readonly closeOnSelect = input<boolean>(true);
 
-  // Traditional inputs
-  @Input() id?: string;
-  @Input() class?: string;
-  @Input() dataTestid?: string;
+  // Signal inputs (fully zoneless)
+  readonly id = input<string>();
+  readonly class = input<string>();
+  readonly dataTestid = input<string>();
 
-  // Modern signal outputs
+  // Signal outputs (fully zoneless)
   readonly itemSelected = output<DropdownMenuItem>();
   readonly openChanged = output<boolean>();
 
@@ -396,7 +393,7 @@ export class DropdownMenuComponent implements OnInit, OnDestroy {
   // Listen for clicks outside to close dropdown
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
-    if (this.dropdownContainer && !this.dropdownContainer.nativeElement.contains(event.target as Node)) {
+    if (this._isOpen() && this.dropdownContainer && !this.dropdownContainer.nativeElement.contains(event.target as Node)) {
       this.close();
     }
   }

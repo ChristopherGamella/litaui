@@ -1,8 +1,5 @@
 import { 
   Component, 
-  Input, 
-  Output, 
-  EventEmitter, 
   computed, 
   input, 
   output, 
@@ -134,7 +131,7 @@ export const breadcrumbSeparatorVariants = cva(
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <nav [class]="containerClasses()" [attr.aria-label]="ariaLabel || 'Breadcrumb'" [attr.data-testid]="dataTestid">
+    <nav [class]="containerClasses()" [attr.aria-label]="ariaLabel() || 'Breadcrumb'" [attr.data-testid]="dataTestid()">
       <ol class="flex flex-wrap items-center gap-1.5 break-words">
         @for (item of displayItems(); track item.id; let i = $index) {
           <li class="inline-flex items-center gap-1.5">
@@ -145,11 +142,13 @@ export const breadcrumbSeparatorVariants = cva(
                   <!-- Dropdown with collapsed items -->
                   <button
                     type="button"
-                    class="flex h-9 w-9 items-center justify-center rounded-md border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground"
+                    class="flex h-9 w-9 items-center justify-center rounded-md border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
                     [attr.aria-label]="'Show ' + collapsedItems().length + ' more items'"
                     (click)="toggleEllipsis()"
                   >
-                    <lucide-angular [img]="MoreHorizontalIcon()" class="h-4 w-4"></lucide-angular>
+                    @if (MoreHorizontalIcon() && MoreHorizontalIcon() !== null) {
+                      <lucide-angular [img]="MoreHorizontalIcon()" class="h-4 w-4"></lucide-angular>
+                    }
                   </button>
                   
                   @if (showEllipsisMenu()) {
@@ -159,7 +158,7 @@ export const breadcrumbSeparatorVariants = cva(
                           [class]="ellipsisItemClasses(collapsedItem)"
                           (click)="selectBreadcrumb(collapsedItem)"
                         >
-                          @if (collapsedItem.icon) {
+                          @if (collapsedItem.icon && collapsedItem.icon !== null && collapsedItem.icon !== undefined) {
                             <lucide-angular [img]="collapsedItem.icon" class="h-4 w-4"></lucide-angular>
                           }
                           <span>{{ collapsedItem.label }}</span>
@@ -173,7 +172,9 @@ export const breadcrumbSeparatorVariants = cva(
                 }
                 
                 <!-- Separator after ellipsis -->
-                <lucide-angular [img]="separator()" [class]="separatorClasses()"></lucide-angular>
+                @if (separator() && separator() !== null && separator() !== undefined) {
+                  <lucide-angular [img]="separator()" [class]="separatorClasses()"></lucide-angular>
+                }
               </div>
             } @else {
               <!-- Regular breadcrumb item -->
@@ -190,10 +191,10 @@ export const breadcrumbSeparatorVariants = cva(
                     <!-- Clickable link -->
                     <a
                       [href]="item.href"
-                      class="flex items-center gap-1.5 hover:underline"
+                      class="flex items-center gap-1.5 cursor-pointer hover:underline"
                       (click)="selectBreadcrumb(item, $event)"
                     >
-                      @if (item.icon) {
+                      @if (item.icon && item.icon !== null && item.icon !== undefined) {
                         <lucide-angular [img]="item.icon" class="h-4 w-4"></lucide-angular>
                       }
                       <span>{{ item.label }}</span>
@@ -202,10 +203,10 @@ export const breadcrumbSeparatorVariants = cva(
                     <!-- Clickable button -->
                     <button
                       type="button"
-                      class="flex items-center gap-1.5 hover:underline"
+                      class="flex items-center gap-1.5 cursor-pointer hover:underline"
                       (click)="selectBreadcrumb(item)"
                     >
-                      @if (item.icon) {
+                      @if (item.icon && item.icon !== null && item.icon !== undefined) {
                         <lucide-angular [img]="item.icon" class="h-4 w-4"></lucide-angular>
                       }
                       <span>{{ item.label }}</span>
@@ -213,7 +214,7 @@ export const breadcrumbSeparatorVariants = cva(
                   } @else {
                     <!-- Static item -->
                     <span class="flex items-center gap-1.5">
-                      @if (item.icon) {
+                      @if (item.icon && item.icon !== null && item.icon !== undefined) {
                         <lucide-angular [img]="item.icon" class="h-4 w-4"></lucide-angular>
                       }
                       <span>{{ item.label }}</span>
@@ -223,7 +224,7 @@ export const breadcrumbSeparatorVariants = cva(
               </div>
               
               <!-- Separator (not for last item) -->
-              @if (i < displayItems().length - 1) {
+              @if (i < displayItems().length - 1 && currentSeparator() && currentSeparator() !== null && currentSeparator() !== undefined) {
                 <lucide-angular [img]="currentSeparator()" [class]="separatorClasses()"></lucide-angular>
               }
             }
@@ -275,7 +276,7 @@ export const breadcrumbSeparatorVariants = cva(
   `]
 })
 export class BreadcrumbComponent {
-  // Modern signal inputs
+  // Signal inputs (fully zoneless)
   readonly items = input<BreadcrumbItem[]>([]);
   readonly variant = input<'default' | 'ghost'>('default');
   readonly size = input<'sm' | 'md' | 'lg'>('md');
@@ -283,14 +284,12 @@ export class BreadcrumbComponent {
   readonly maxItems = input<number>(0);
   readonly showEllipsis = input<boolean>(true);
   readonly ellipsisDropdown = input<boolean>(false);
+  readonly id = input<string>();
+  readonly class = input<string>();
+  readonly dataTestid = input<string>();
+  readonly ariaLabel = input<string>();
 
-  // Traditional inputs
-  @Input() id?: string;
-  @Input() class?: string;
-  @Input() dataTestid?: string;
-  @Input() ariaLabel?: string;
-
-  // Modern signal outputs
+  // Signal outputs (fully zoneless)
   readonly itemSelected = output<BreadcrumbItem>();
   readonly itemClicked = output<{ item: BreadcrumbItem; event?: Event }>();
 
@@ -320,7 +319,7 @@ export class BreadcrumbComponent {
         variant: this.variant(),
         size: this.size(),
       }),
-      this.class
+      this.class()
     );
   });
 
@@ -342,7 +341,7 @@ export class BreadcrumbComponent {
    */
   ellipsisItemClasses(item: BreadcrumbItem): string {
     return cn(
-      "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
+      "relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
       item.disabled && "pointer-events-none opacity-50"
     );
   }

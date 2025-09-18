@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostBinding, signal } from '@angular/core';
+import { Component, computed, input, output, HostBinding, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { cva, type VariantProps } from '../../utils/cn';
@@ -53,29 +53,29 @@ export type BadgeVariant = VariantProps<typeof badgeVariants>;
   imports: [CommonModule, LucideAngularModule],
   template: `
     <span
-      [class]="badgeClasses"
-      [attr.data-testid]="dataTestid"
+      [class]="badgeClasses()"
+      [attr.data-testid]="dataTestid()"
     >
       <!-- Left Icon -->
-      @if (leftIcon) {
-        <lucide-angular [img]="leftIcon" size="12" class="mr-1 flex-shrink-0"></lucide-angular>
+      @if (leftIcon()) {
+        <lucide-angular [img]="leftIcon()" size="12" class="mr-1 flex-shrink-0"></lucide-angular>
       }
 
       <!-- Badge Content -->
       <ng-content></ng-content>
 
       <!-- Right Icon -->
-      @if (rightIcon) {
-        <lucide-angular [img]="rightIcon" size="12" class="ml-1 flex-shrink-0"></lucide-angular>
+      @if (rightIcon()) {
+        <lucide-angular [img]="rightIcon()" size="12" class="ml-1 flex-shrink-0"></lucide-angular>
       }
 
       <!-- Dismiss Button -->
-      @if (dismissible) {
+      @if (dismissible()) {
         <button
           type="button"
           class="ml-1 flex-shrink-0 hover:bg-black/10 rounded-full p-0.5 transition-colors"
           (click)="handleDismiss($event)"
-          [attr.aria-label]="'Remove ' + (ariaLabel || 'badge')"
+          [attr.aria-label]="'Remove ' + (ariaLabel() || 'badge')"
         >
           <lucide-angular [img]="XIcon()" size="10"></lucide-angular>
         </button>
@@ -101,23 +101,21 @@ export type BadgeVariant = VariantProps<typeof badgeVariants>;
     }
   `]
 })
-export class BadgeComponent implements BadgeProps {
-  // Component inputs
-  @Input() variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info' = 'default';
-  @Input() size: 'xs' | 'sm' | 'md' | 'lg' = 'md';
-  @Input() shape: 'rounded' | 'square' | 'pill' = 'rounded';
-  @Input() leftIcon?: any;
-  @Input() rightIcon?: any;
-  @Input() dismissible = false;
-  @Input() id?: string;
-  @Input() class?: string;
-  @Input() dataTestid?: string;
+export class BadgeComponent {
+  // Signal inputs
+  readonly variant = input<'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info'>('default');
+  readonly size = input<'xs' | 'sm' | 'md' | 'lg'>('md');
+  readonly shape = input<'rounded' | 'square' | 'pill'>('rounded');
+  readonly leftIcon = input<any>();
+  readonly rightIcon = input<any>();
+  readonly dismissible = input<boolean>(false);
+  readonly id = input<string>();
+  readonly class = input<string>();
+  readonly dataTestid = input<string>();
+  readonly ariaLabel = input<string>();
 
-  // Accessibility inputs
-  @Input() ariaLabel?: string;
-
-  // Event outputs
-  @Output() onDismiss = new EventEmitter<void>();
+  // Signal outputs
+  readonly onDismiss = output<void>();
 
   // Icon imports (for dismiss button)
   XIcon = signal<any>(null);
@@ -132,22 +130,23 @@ export class BadgeComponent implements BadgeProps {
   /**
    * Computed badge classes using the variant system
    */
-  get badgeClasses(): string {
+  readonly badgeClasses = computed(() => {
     const variantClasses = badgeVariants({
-      variant: this.variant as any,
-      size: this.size as any,
-      shape: this.shape as any,
+      variant: this.variant() as any,
+      size: this.size() as any,
+      shape: this.shape() as any,
     });
 
     const classes = [variantClasses];
 
     // Add custom class if provided
-    if (this.class) {
-      classes.push(this.class);
+    const customClass = this.class();
+    if (customClass) {
+      classes.push(customClass);
     }
 
     return classes.join(' ');
-  }
+  });
 
   /**
    * Handle badge dismissal
@@ -163,6 +162,6 @@ export class BadgeComponent implements BadgeProps {
    */
   get textContent(): string {
     // This would be used for screen readers if needed
-    return this.ariaLabel || '';
+    return this.ariaLabel() || '';
   }
 }

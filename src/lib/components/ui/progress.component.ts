@@ -1,7 +1,6 @@
-import { Component, Input, computed, input, signal } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { cva, type VariantProps, cn } from '../../utils/cn';
-import { ProgressProps } from '../../types';
 
 /**
  * Progress bar variants configuration
@@ -99,8 +98,8 @@ export const progressFillVariants = cva(
           [attr.aria-valuenow]="normalizedValue()"
           [attr.aria-valuemin]="0"
           [attr.aria-valuemax]="max()"
-          [attr.aria-label]="ariaLabel"
-          [attr.data-testid]="dataTestid"
+          [attr.aria-label]="ariaLabel()"
+          [attr.data-testid]="dataTestid()"
         >
           <div
             [class]="fillClasses()"
@@ -135,8 +134,8 @@ export const progressFillVariants = cva(
             [attr.aria-valuenow]="normalizedValue()"
             [attr.aria-valuemin]="0"
             [attr.aria-valuemax]="max()"
-            [attr.aria-label]="ariaLabel"
-            [attr.data-testid]="dataTestid"
+            [attr.aria-label]="ariaLabel()"
+            [attr.data-testid]="dataTestid()"
           >
             <!-- Background circle -->
             <circle
@@ -233,11 +232,11 @@ export class ProgressComponent {
   readonly label = input<string>('');
   readonly animationDuration = input<number>(500);
 
-  // Traditional inputs for additional props
-  @Input() id?: string;
-  @Input() class?: string;
-  @Input() dataTestid?: string;
-  @Input() ariaLabel?: string;
+  // Signal inputs (fully zoneless)
+  readonly id = input<string>();
+  readonly class = input<string>();
+  readonly dataTestid = input<string>();
+  readonly ariaLabel = input<string>();
 
   // Expose Math for template
   readonly Math = Math;
@@ -263,7 +262,7 @@ export class ProgressComponent {
    * Container classes
    */
   readonly containerClasses = computed(() => {
-    return cn("w-full", this.class);
+    return cn("w-full", this.class());
   });
 
   /**

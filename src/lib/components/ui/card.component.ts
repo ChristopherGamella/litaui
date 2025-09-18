@@ -1,8 +1,7 @@
-import { Component, Input, Output, EventEmitter, HostBinding } from '@angular/core';
+import { Component, HostBinding, computed, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { cva, type VariantProps } from '../../utils/cn';
-import { CardProps } from '../../types';
 
 /**
  * Card variants configuration
@@ -45,17 +44,17 @@ export type CardVariant = VariantProps<typeof cardVariants>;
   imports: [CommonModule, LucideAngularModule],
   template: `
     <div
-      [class]="cardClasses"
-      [attr.data-testid]="dataTestid"
+      [class]="cardClasses()"
+      [attr.data-testid]="dataTestid()"
     >
       <!-- Card Header -->
-      <div *ngIf="header || headerTemplate" class="card-header">
-        <ng-container *ngIf="headerTemplate; else defaultHeader">
+      <div *ngIf="header() || headerTemplate()" class="card-header">
+        <ng-container *ngIf="headerTemplate(); else defaultHeader">
           <ng-content select="[card-header]"></ng-content>
         </ng-container>
         <ng-template #defaultHeader>
-          <h3 *ngIf="header" class="text-lg font-semibold leading-tight tracking-tight text-text-primary">
-            {{ header }}
+          <h3 *ngIf="header()" class="text-lg font-semibold leading-tight tracking-tight text-text-primary">
+            {{ header() }}
           </h3>
         </ng-template>
       </div>
@@ -66,13 +65,13 @@ export type CardVariant = VariantProps<typeof cardVariants>;
       </div>
 
       <!-- Card Footer -->
-      <div *ngIf="footer || footerTemplate" class="card-footer">
-        <ng-container *ngIf="footerTemplate; else defaultFooter">
+      <div *ngIf="footer() || footerTemplate()" class="card-footer">
+        <ng-container *ngIf="footerTemplate(); else defaultFooter">
           <ng-content select="[card-footer]"></ng-content>
         </ng-container>
         <ng-template #defaultFooter>
-          <p *ngIf="footer" class="text-sm text-text-muted">
-            {{ footer }}
+          <p *ngIf="footer()" class="text-sm text-text-muted">
+            {{ footer() }}
           </p>
         </ng-template>
       </div>
@@ -123,35 +122,35 @@ export type CardVariant = VariantProps<typeof cardVariants>;
     }
   `]
 })
-export class CardComponent implements CardProps {
-  // Component inputs
-  @Input() variant: 'default' | 'elevated' | 'outlined' | 'filled' = 'default';
-  @Input() padding: 'none' | 'sm' | 'md' | 'lg' | 'xl' = 'md';
-  @Input() header?: string;
-  @Input() footer?: string;
-  @Input() hoverable = false;
-  @Input() clickable = false;
-  @Input() id?: string;
-  @Input() class?: string;
-  @Input() dataTestid?: string;
+export class CardComponent {
+  // Signal inputs (fully zoneless)
+  readonly variant = input<'default' | 'elevated' | 'outlined' | 'filled'>('default');
+  readonly padding = input<'none' | 'sm' | 'md' | 'lg' | 'xl'>('md');
+  readonly header = input<string>();
+  readonly footer = input<string>();
+  readonly hoverable = input<boolean>(false);
+  readonly clickable = input<boolean>(false);
+  readonly id = input<string>();
+  readonly class = input<string>();
+  readonly dataTestid = input<string>();
 
   // Template inputs
-  @Input() headerTemplate = false;
-  @Input() footerTemplate = false;
+  readonly headerTemplate = input<boolean>(false);
+  readonly footerTemplate = input<boolean>(false);
 
-  // Event outputs
-  @Output() onClick = new EventEmitter<Event>();
+  // Signal outputs (fully zoneless)
+  readonly onClick = output<Event>();
 
   // Host bindings for dynamic classes
   @HostBinding('class')
   get hostClasses(): string {
     const classes = [];
 
-    if (this.hoverable) {
+    if (this.hoverable()) {
       classes.push('card-hover');
     }
 
-    if (this.clickable) {
+    if (this.clickable()) {
       classes.push('card-clickable');
     }
 
@@ -161,49 +160,45 @@ export class CardComponent implements CardProps {
   // Host listeners for clickable cards
   @HostBinding('attr.tabindex')
   get tabindex(): string | null {
-    return this.clickable ? '0' : null;
+    return this.clickable() ? '0' : null;
   }
 
   @HostBinding('attr.role')
   get role(): string | null {
-    return this.clickable ? 'button' : null;
+    return this.clickable() ? 'button' : null;
   }
 
   /**
    * Computed card classes using the variant system
    */
-  get cardClasses(): string {
+  readonly cardClasses = computed(() => {
     const variantClasses = cardVariants({
-      variant: this.variant,
-      padding: this.padding,
+      variant: this.variant(),
+      padding: this.padding(),
     } as any);
 
     const classes = [variantClasses];
 
     // Add custom class if provided
-    if (this.class) {
-      classes.push(this.class);
+    const customClass = this.class();
+    if (customClass) {
+      classes.push(customClass);
     }
 
     return classes.join(' ');
-  }
+  });
 
   /**
    * Handle card click for clickable cards
    */
-  @HostBinding('attr.tabindex')
-  get hostTabIndex(): string | null {
-    return this.clickable ? '0' : null;
-  }
-
   onCardClick(event: Event): void {
-    if (this.clickable) {
+    if (this.clickable()) {
       this.onClick.emit(event);
     }
   }
 
   onKeydown(event: KeyboardEvent): void {
-    if (this.clickable && (event.key === 'Enter' || event.key === ' ')) {
+    if (this.clickable() && (event.key === 'Enter' || event.key === ' ')) {
       event.preventDefault();
       this.onClick.emit(event);
     }

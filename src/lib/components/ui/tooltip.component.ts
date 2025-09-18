@@ -1,6 +1,5 @@
 import { 
   Component, 
-  Input, 
   TemplateRef, 
   ViewChild, 
   ElementRef,
@@ -70,12 +69,12 @@ import { cn } from '../../utils/cn';
       <div 
         [class]="tooltipClasses()"
         role="tooltip"
-        [attr.aria-describedby]="ariaDescribedBy"
+        [attr.aria-describedby]="ariaDescribedBy()"
       >
-        @if (content) {
-          {{ content }}
-        } @else if (contentTemplate) {
-          <ng-container *ngTemplateOutlet="contentTemplate"></ng-container>
+        @if (content()) {
+          {{ content() }}
+        } @else if (contentTemplate()) {
+          <ng-container *ngTemplateOutlet="contentTemplate()"></ng-container>
         }
       </div>
     </ng-template>
@@ -88,14 +87,14 @@ export class TooltipComponent implements OnDestroy {
   // Signal inputs
   position = input<'top' | 'bottom' | 'left' | 'right'>('top');
   
-  // Traditional inputs  
-  @Input() content?: string;
-  @Input() contentTemplate?: TemplateRef<any>;
-  @Input() disabled = false;
-  @Input() showDelay = 700;
-  @Input() hideDelay = 300;
-  @Input() class?: string;
-  @Input() ariaDescribedBy?: string;
+  // Signal inputs (fully zoneless)
+  readonly content = input<string>();
+  readonly contentTemplate = input<TemplateRef<any>>();
+  readonly disabled = input<boolean>(false);
+  readonly showDelay = input<number>(700);
+  readonly hideDelay = input<number>(300);
+  readonly class = input<string>();
+  readonly ariaDescribedBy = input<string>();
 
   // Internal state
   private overlayRef?: OverlayRef;
@@ -108,7 +107,7 @@ export class TooltipComponent implements OnDestroy {
     return cn(
       'z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95',
       this.getPositionClasses(),
-      this.class
+      this.class()
     );
   });
 
@@ -128,7 +127,7 @@ export class TooltipComponent implements OnDestroy {
    * Show the tooltip
    */
   show(): void {
-    if (this.disabled || this.isVisible()) return;
+    if (this.disabled() || this.isVisible()) return;
 
     // Clear any pending hide timeout
     if (this.hideTimeout) {
@@ -141,7 +140,7 @@ export class TooltipComponent implements OnDestroy {
       this.createOverlay();
       this.isVisible.set(true);
       // Signal change detection is automatic
-    }, this.showDelay);
+    }, this.showDelay());
   }
 
   /**
@@ -163,7 +162,7 @@ export class TooltipComponent implements OnDestroy {
       }
       this.isVisible.set(false);
       // Signal change detection is automatic
-    }, this.hideDelay);
+    }, this.hideDelay());
   }
 
   /**

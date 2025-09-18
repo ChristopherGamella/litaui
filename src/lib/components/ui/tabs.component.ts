@@ -1,8 +1,5 @@
 import { 
   Component, 
-  Input, 
-  Output, 
-  EventEmitter, 
   computed, 
   input, 
   output, 
@@ -179,7 +176,7 @@ export const tabContentVariants = cva(
         [class]="tabListClasses()"
         role="tablist"
         [attr.aria-orientation]="orientation()"
-        [attr.aria-label]="ariaLabel"
+        [attr.aria-label]="ariaLabel()"
       >
         @for (tab of tabs(); track tab.id) {
           <button
@@ -196,7 +193,7 @@ export const tabContentVariants = cva(
             (keydown)="handleKeyDown($event, tab.id)"
           >
             <!-- Icon -->
-            @if (tab.icon) {
+            @if (tab.icon && tab.icon !== null && tab.icon !== undefined) {
               <lucide-angular [img]="tab.icon" class="h-4 w-4"></lucide-angular>
             }
             
@@ -211,7 +208,7 @@ export const tabContentVariants = cva(
             }
             
             <!-- Close button -->
-            @if (tab.closable && closable()) {
+            @if (tab.closable && closable() && XIcon() && XIcon() !== null) {
               <button
                 type="button"
                 class="ml-2 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -302,13 +299,13 @@ export class TabsComponent implements OnInit {
   readonly closable = input<boolean>(false);
   readonly loop = input<boolean>(true);
 
-  // Traditional inputs
-  @Input() id?: string;
-  @Input() class?: string;
-  @Input() dataTestid?: string;
-  @Input() ariaLabel?: string;
+  // Signal inputs (fully zoneless)
+  readonly id = input<string>();
+  readonly class = input<string>();
+  readonly dataTestid = input<string>();
+  readonly ariaLabel = input<string>();
 
-  // Modern signal outputs
+  // Signal outputs (fully zoneless)
   readonly activeTabChange = output<string>();
   readonly tabClosed = output<string>();
   readonly tabSelected = output<TabItem>();
@@ -345,7 +342,7 @@ export class TabsComponent implements OnInit {
         orientation: this.orientation(),
         variant: this.variant(),
       }),
-      this.class
+      this.class()
     );
   });
 

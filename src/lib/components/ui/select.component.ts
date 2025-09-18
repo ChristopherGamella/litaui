@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostBinding, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy, ChangeDetectionStrategy, signal, computed, input, output, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, ChevronDown, Check, Search, X, icons } from 'lucide-angular';
@@ -53,7 +53,7 @@ export const selectContentVariants = cva(
  * Select item variants configuration
  */
 export const selectItemVariants = cva(
-  "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+  "relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
   {
     variants: {
       variant: {
@@ -77,30 +77,30 @@ export type SelectItemVariant = VariantProps<typeof selectItemVariants>;
  */
 @Component({
   selector: 'lib-select',
-  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, LucideAngularModule],
   template: `
     <div class="relative">
       <!-- Select Trigger -->
       <button
         type="button"
-        [class]="triggerClasses"
-        [attr.aria-expanded]="isOpen"
+        [class]="triggerClasses()"
+        [attr.aria-expanded]="isOpen()"
         [attr.aria-haspopup]="true"
-        [attr.aria-label]="ariaLabel || placeholder || 'Select option'"
-        [attr.data-testid]="dataTestid"
+        [attr.aria-label]="ariaLabel() || placeholder() || 'Select option'"
+        [attr.data-testid]="dataTestid()"
         (click)="toggleDropdown()"
         (keydown)="handleKeydown($event)"
         #triggerButton
       >
         <!-- Selected Value Display -->
-        <span [class]="getDisplayTextClass()">
-          {{ getDisplayText() }}
+        <span [class]="displayTextClass()">
+          {{ displayText() }}
         </span>
 
         <!-- Icons -->
         <div class="flex items-center space-x-1">
-          @if (clearable && selectedValue) {
+          @if (clearable() && (multiple() ? selectedValues().length > 0 : selectedValue())) {
             <button
               type="button"
               class="flex-shrink-0 hover:bg-muted rounded-full p-0.5"
@@ -114,29 +114,33 @@ export type SelectItemVariant = VariantProps<typeof selectItemVariants>;
             [img]="ChevronDownIcon"
             size="16"
             class="flex-shrink-0 opacity-50"
-            [class.rotate-180]="isOpen"
+            [class.rotate-180]="isOpen()"
           ></lucide-angular>
         </div>
       </button>
 
       <!-- Dropdown Content -->
-      @if (isOpen) {
+      @if (isOpen()) {
         <div
           class="absolute top-full left-0 z-50 mt-1 min-w-full"
           #dropdownContent
         >
           <div class="rounded-md border bg-popover text-popover-foreground shadow-md">
             <!-- Search Input -->
-            @if (searchable) {
+            @if (searchable()) {
               <div class="p-2 border-b">
                 <div class="relative">
-                  <lucide-angular [img]="SearchIcon" size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></lucide-angular>
+                  <lucide-angular 
+                    [img]="SearchIcon" 
+                    size="16" 
+                    class="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+                  </lucide-angular>
                   <input
                     type="text"
-                    [placeholder]="'Search ' + (placeholder?.toLowerCase() || 'options...')"
-                    [value]="searchQuery"
+                    [placeholder]="'Search ' + (placeholder()?.toLowerCase() || 'options...')"
+                    [value]="searchQuery()"
                     (input)="onSearchInput($event)"
-                    class="w-full pl-9 pr-3 py-2 text-sm bg-background border rounded focus:outline-none focus:ring-2 focus:ring-ring"
+                    class="w-full pl-10 pr-3 py-2 text-sm bg-background border rounded focus:outline-none focus:ring-2 focus:ring-ring"
                     #searchInput
                   />
                 </div>
@@ -147,7 +151,7 @@ export type SelectItemVariant = VariantProps<typeof selectItemVariants>;
             <div class="max-h-60 overflow-y-auto p-1">
               @if (filteredOptions().length === 0) {
                 <div class="py-6 text-center text-sm text-muted-foreground">
-                  {{ searchQuery ? 'No options found' : 'No options available' }}
+                  {{ searchQuery() ? 'No options found' : 'No options available' }}
                 </div>
               } @else {
                 @for (option of filteredOptions(); track option.value) {
@@ -158,21 +162,28 @@ export type SelectItemVariant = VariantProps<typeof selectItemVariants>;
                     (click)="selectOption(option)"
                     (mouseenter)="setHighlightedIndex(filteredOptions().indexOf(option))"
                   >
-                    <!-- Check Icon for Selected -->
-                    @if (isSelected(option)) {
-                      <lucide-angular [img]="CheckIcon" size="16" class="absolute left-2 flex-shrink-0"></lucide-angular>
-                    }
-
-                    <!-- Option Content -->
-                    <div class="flex items-center space-x-2">
-                      @if (option.icon) {
-                        <lucide-angular [img]="getIcon(option.icon)" size="16" class="flex-shrink-0"></lucide-angular>
+                    <!-- Option Content with improved spacing -->
+                    <div class="flex items-center space-x-3 relative">
+                      <!-- Check Icon for Selected -->
+                      @if (isSelected(option)) {
+                        <lucide-angular 
+                          [img]="CheckIcon" 
+                          size="16" 
+                          class="absolute left-0 top-1/2 -translate-y-1/2 flex-shrink-0 text-primary">
+                        </lucide-angular>
                       }
-                      <div class="flex-1">
-                        <div class="font-medium">{{ option.label }}</div>
-                        @if (option.description) {
-                          <div class="text-xs text-muted-foreground">{{ option.description }}</div>
+                      
+                      <!-- Content with margin to accommodate check icon -->
+                      <div class="flex items-center space-x-3 ml-6">
+                        @if (option.icon) {
+                          <lucide-angular [img]="getIcon(option.icon)" size="16" class="flex-shrink-0"></lucide-angular>
                         }
+                        <div class="flex-1 min-w-0">
+                          <div class="font-medium truncate">{{ option.label }}</div>
+                          @if (option.description) {
+                            <div class="text-xs text-muted-foreground truncate">{{ option.description }}</div>
+                          }
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -256,40 +267,40 @@ export type SelectItemVariant = VariantProps<typeof selectItemVariants>;
     }
   `]
 })
-export class SelectComponent implements SelectProps, AfterViewInit, OnDestroy {
+export class SelectComponent implements AfterViewInit, OnDestroy {
   @ViewChild('triggerButton') triggerButton!: ElementRef<HTMLButtonElement>;
   @ViewChild('dropdownContent') dropdownContent?: ElementRef<HTMLDivElement>;
   @ViewChild('searchInput') searchInput?: ElementRef<HTMLInputElement>;
 
-  // Component inputs
-  @Input() options: SelectOption[] = [];
-  @Input() multiple = false;
-  @Input() placeholder?: string;
-  @Input() searchable = false;
-  @Input() clearable = false;
-  @Input() disabled = false;
-  @Input() loading = false;
-  @Input() maxHeight?: string;
-  @Input() variant: 'default' | 'error' = 'default';
-  @Input() size: 'sm' | 'md' | 'lg' = 'md';
-  @Input() id?: string;
-  @Input() class?: string;
-  @Input() dataTestid?: string;
+  // Component inputs using new signal-based approach
+  options = input<SelectOption[]>([]);
+  multiple = input(false);
+  placeholder = input<string>();
+  searchable = input(false);
+  clearable = input(false);
+  disabled = input(false);
+  loading = input(false);
+  maxHeight = input<string>();
+  variant = input<'default' | 'error'>('default');
+  size = input<'sm' | 'md' | 'lg'>('md');
+  id = input<string>();
+  class = input<string>();
+  dataTestid = input<string>();
 
   // Accessibility inputs
-  @Input() ariaLabel?: string;
+  ariaLabel = input<string>();
 
-  // Event outputs
-  @Input() value?: any;
-  @Output() valueChange = new EventEmitter<any>();
-  @Output() selectionChange = new EventEmitter<SelectOption | SelectOption[]>();
+  // Value input and outputs
+  value = input<any>();
+  valueChange = output<any>();
+  selectionChange = output<SelectOption | SelectOption[]>();
 
-  // Internal state
-  isOpen = false;
-  searchQuery = '';
-  highlightedIndex = -1;
-  selectedValue: any = null;
-  selectedValues: any[] = [];
+  // Internal state using signals
+  isOpen = signal(false);
+  searchQuery = signal('');
+  highlightedIndex = signal(-1);
+  selectedValue = signal<any>(null);
+  selectedValues = signal<any[]>([]);
 
   // Icons
   readonly ChevronDownIcon = ChevronDown;
@@ -307,8 +318,36 @@ export class SelectComponent implements SelectProps, AfterViewInit, OnDestroy {
   // Outside click handler
   private clickOutsideHandler?: (event: Event) => void;
 
+  constructor() {
+    // Effect to sync value input with internal state
+    effect(() => {
+      const currentValue = this.value();
+      if (currentValue !== undefined) {
+        if (this.multiple()) {
+          const newValues = Array.isArray(currentValue) ? currentValue : [];
+          if (JSON.stringify(newValues) !== JSON.stringify(this.selectedValues())) {
+            this.selectedValues.set(newValues);
+          }
+        } else {
+          if (currentValue !== this.selectedValue()) {
+            this.selectedValue.set(currentValue);
+          }
+        }
+      }
+    });
+  }
+
   ngAfterViewInit(): void {
     this.setupOutsideClickHandler();
+    
+    // Initialize internal signals based on input values
+    if (this.value()) {
+      if (this.multiple()) {
+        this.selectedValues.set(Array.isArray(this.value()) ? this.value() : []);
+      } else {
+        this.selectedValue.set(this.value());
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -318,78 +357,78 @@ export class SelectComponent implements SelectProps, AfterViewInit, OnDestroy {
   /**
    * Computed trigger classes
    */
-  get triggerClasses(): string {
+  triggerClasses = computed(() => {
     const baseClasses = selectTriggerVariants({
-      variant: this.variant,
-      size: this.size,
+      variant: this.variant(),
+      size: this.size(),
     } as any);
 
     const classes = [baseClasses];
 
-    if (this.class) {
-      classes.push(this.class);
+    if (this.class()) {
+      classes.push(this.class()!);
     }
 
-    if (this.disabled) {
+    if (this.disabled()) {
       classes.push('cursor-not-allowed opacity-50');
     }
 
     return classes.join(' ');
-  }
+  });
 
   /**
    * Get filtered options based on search query
    */
-  filteredOptions(): SelectOption[] {
-    if (!this.searchable || !this.searchQuery.trim()) {
-      return this.options;
+  filteredOptions = computed(() => {
+    if (!this.searchable() || !this.searchQuery().trim()) {
+      return this.options();
     }
 
-    const query = this.searchQuery.toLowerCase();
-    return this.options.filter(option =>
+    const query = this.searchQuery().toLowerCase();
+    return this.options().filter(option =>
       option.label.toLowerCase().includes(query) ||
       (option.description && option.description.toLowerCase().includes(query))
     );
-  }
+  });
 
   /**
    * Get display text for the trigger
    */
-  getDisplayText(): string {
-    if (this.multiple) {
-      if (this.selectedValues.length === 0) {
-        return this.placeholder || 'Select options...';
+  displayText = computed(() => {
+    if (this.multiple()) {
+      if (this.selectedValues().length === 0) {
+        return this.placeholder() || 'Select options...';
       }
-      if (this.selectedValues.length === 1) {
-        const option = this.options.find(opt => opt.value === this.selectedValues[0]);
-        return option?.label || this.placeholder || 'Select options...';
+      if (this.selectedValues().length === 1) {
+        const option = this.options().find(opt => opt.value === this.selectedValues()[0]);
+        return option?.label || this.placeholder() || 'Select options...';
       }
-      return `${this.selectedValues.length} selected`;
+      return `${this.selectedValues().length} selected`;
     } else {
-      if (!this.selectedValue) {
-        return this.placeholder || 'Select option...';
+      if (!this.selectedValue()) {
+        return this.placeholder() || 'Select option...';
       }
-      const option = this.options.find(opt => opt.value === this.selectedValue);
-      return option?.label || this.placeholder || 'Select option...';
+      const option = this.options().find(opt => opt.value === this.selectedValue());
+      return option?.label || this.placeholder() || 'Select option...';
     }
-  }
+  });
 
   /**
    * Get display text class
    */
-  getDisplayTextClass(): string {
-    const hasValue = this.multiple ? this.selectedValues.length > 0 : !!this.selectedValue;
+  displayTextClass = computed(() => {
+    const hasValue = this.multiple() ? this.selectedValues().length > 0 : !!this.selectedValue();
     return hasValue ? 'text-foreground' : 'text-muted-foreground';
-  }
+  });
 
   /**
    * Check if option is selected
    */
   isSelected(option: SelectOption): boolean {
-    if (this.multiple) {
-      return this.selectedValues.includes(option.value);
+    if (this.multiple()) {
+      return this.selectedValues().includes(option.value);
     }
-    return this.selectedValue === option.value;
+    return this.selectedValue() === option.value;
   }
 
   /**
@@ -417,19 +456,19 @@ export class SelectComponent implements SelectProps, AfterViewInit, OnDestroy {
    * Toggle dropdown visibility
    */
   toggleDropdown(): void {
-    if (this.disabled) return;
+    if (this.disabled()) return;
 
-    this.isOpen = !this.isOpen;
+    this.isOpen.update(current => !current);
 
-    if (this.isOpen) {
-      this.highlightedIndex = -1;
+    if (this.isOpen()) {
+      this.highlightedIndex.set(-1);
       // Focus search input if searchable
-      setTimeout(() => {
-        if (this.searchable && this.searchInput) {
-          this.searchInput.nativeElement.focus();
-        }
-        // Change detection is automatic with signals
-      });
+      if (this.searchable()) {
+        // Use requestAnimationFrame instead of setTimeout for better performance
+        requestAnimationFrame(() => {
+          this.searchInput?.nativeElement?.focus();
+        });
+      }
     }
   }
 
@@ -439,24 +478,28 @@ export class SelectComponent implements SelectProps, AfterViewInit, OnDestroy {
   selectOption(option: SelectOption): void {
     if (option.disabled) return;
 
-    if (this.multiple) {
-      const index = this.selectedValues.indexOf(option.value);
+    if (this.multiple()) {
+      const currentValues = this.selectedValues();
+      const index = currentValues.indexOf(option.value);
       if (index > -1) {
-        this.selectedValues.splice(index, 1);
+        this.selectedValues.update(values => values.filter(v => v !== option.value));
       } else {
-        this.selectedValues.push(option.value);
+        this.selectedValues.update(values => [...values, option.value]);
       }
-      this.value = this.selectedValues;
+      this.valueChange.emit(this.selectedValues());
     } else {
-      this.selectedValue = option.value;
-      this.value = option.value;
-      this.isOpen = false;
+      this.selectedValue.set(option.value);
+      this.isOpen.set(false);
+      this.valueChange.emit(option.value);
     }
 
-    this.valueChange.emit(this.value);
-    this.selectionChange.emit(this.multiple ? this.selectedValues.map(val =>
-      this.options.find(opt => opt.value === val)
-    ).filter((opt): opt is SelectOption => opt !== undefined) : option);
+    const selectedOptions = this.multiple() 
+      ? this.selectedValues().map(val =>
+          this.options().find(opt => opt.value === val)
+        ).filter((opt): opt is SelectOption => opt !== undefined)
+      : option;
+
+    this.selectionChange.emit(selectedOptions);
   }
 
   /**
@@ -465,15 +508,16 @@ export class SelectComponent implements SelectProps, AfterViewInit, OnDestroy {
   clearSelection(event: Event): void {
     event.stopPropagation();
 
-    if (this.multiple) {
-      this.selectedValues = [];
+    if (this.multiple()) {
+      this.selectedValues.set([]);
+      this.valueChange.emit([]);
+      this.selectionChange.emit([]);
     } else {
-      this.selectedValue = null;
+      this.selectedValue.set(null);
+      this.valueChange.emit(null);
+      // For single select, emit empty array when clearing
+      this.selectionChange.emit([]);
     }
-
-    this.value = this.multiple ? [] : null;
-    this.valueChange.emit(this.value);
-    this.selectionChange.emit(this.multiple ? [] : undefined);
   }
 
   /**
@@ -481,8 +525,8 @@ export class SelectComponent implements SelectProps, AfterViewInit, OnDestroy {
    */
   onSearchInput(event: Event): void {
     const target = event.target as HTMLInputElement;
-    this.searchQuery = target.value;
-    this.highlightedIndex = -1;
+    this.searchQuery.set(target.value);
+    this.highlightedIndex.set(-1);
   }
 
   /**
@@ -494,27 +538,27 @@ export class SelectComponent implements SelectProps, AfterViewInit, OnDestroy {
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
-        this.setHighlightedIndex(Math.min(this.highlightedIndex + 1, filteredOptions.length - 1));
+        this.setHighlightedIndex(Math.min(this.highlightedIndex() + 1, filteredOptions.length - 1));
         break;
       case 'ArrowUp':
         event.preventDefault();
-        this.setHighlightedIndex(Math.max(this.highlightedIndex - 1, 0));
+        this.setHighlightedIndex(Math.max(this.highlightedIndex() - 1, 0));
         break;
       case 'Enter':
         event.preventDefault();
-        if (this.highlightedIndex >= 0 && this.highlightedIndex < filteredOptions.length) {
-          this.selectOption(filteredOptions[this.highlightedIndex]);
+        if (this.highlightedIndex() >= 0 && this.highlightedIndex() < filteredOptions.length) {
+          this.selectOption(filteredOptions[this.highlightedIndex()]);
         }
         break;
       case 'Escape':
         event.preventDefault();
-        this.isOpen = false;
+        this.isOpen.set(false);
         this.triggerButton.nativeElement.focus();
         break;
       case 'Tab':
-        if (this.isOpen) {
+        if (this.isOpen()) {
           event.preventDefault();
-          this.isOpen = false;
+          this.isOpen.set(false);
         }
         break;
     }
@@ -524,7 +568,7 @@ export class SelectComponent implements SelectProps, AfterViewInit, OnDestroy {
    * Set highlighted index
    */
   setHighlightedIndex(index: number): void {
-    this.highlightedIndex = index;
+    this.highlightedIndex.set(index);
   }
 
   /**
@@ -539,8 +583,7 @@ export class SelectComponent implements SelectProps, AfterViewInit, OnDestroy {
       if (triggerElement && dropdownElement &&
           !triggerElement.contains(target) &&
           !dropdownElement.contains(target)) {
-        this.isOpen = false;
-        // Change detection is automatic with signals
+        this.isOpen.set(false);
       }
     };
 

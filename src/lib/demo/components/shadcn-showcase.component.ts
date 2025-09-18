@@ -1,6 +1,5 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ButtonComponent } from '../../components/ui/button.component';
 import { BadgeComponent } from '../../components/ui/badge.component';
 import { CardComponent } from '../../components/ui/card.component';
@@ -13,24 +12,38 @@ import { TabsComponent, TabItem } from '../../components/ui/tabs.component';
 import { AccordionComponent, AccordionItem } from '../../components/ui/accordion.component';
 import { DropdownMenuComponent, DropdownMenuItem } from '../../components/ui/dropdown-menu.component';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../components/ui/breadcrumb.component';
+import { CheckboxComponent } from '../../components/ui/checkbox.component';
+import { SelectDemoComponent } from './select-demo.component';
+import { ModalTestComponent } from './modal-test.component';
 import { ThemeService } from '../../utils/theme';
-import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check, Info, AlertTriangle, Home, ChevronRight, Menu, Archive, Folder, File } from 'lucide-angular';
+import { LucideAngularModule, 
+  Mail, Settings, User, Moon, Sun, Code, Copy, Check, Info, AlertTriangle, 
+  Home, ChevronRight, Menu, Archive, Folder, File, Globe, MapPin, Star, Heart, Shield
+} from 'lucide-angular';
 
 /**
- * Comprehensive demo component showcasing all shadcn/ui Angular components
+ * Comprehensive showcase component for shadcn/ui Angular components
  * 
- * This component serves as:
- * - Living documentation of component usage
- * - Visual regression testing reference
- * - Component integration examples
- * - Design system showcase
+ * Demonstrates:
+ * - Zoneless Angular architecture with signals
+ * - Modern component composition patterns
+ * - Accessible form controls without ControlValueAccessor
+ * - Design system integration
+ * - Real-world usage examples
+ * 
+ * Key Features:
+ * - Pure signal-based state management
+ * - Computed values for derived state
+ * - No dependency on FormsModule or ngModel
+ * - Clean separation of concerns
+ * - Type-safe event handling
+ * - Performance-optimized with readonly computeds
  */
 @Component({
   selector: 'lib-shadcn-showcase',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     ButtonComponent,
     BadgeComponent,
     CardComponent,
@@ -43,6 +56,9 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
     AccordionComponent,
     DropdownMenuComponent,
     BreadcrumbComponent,
+    CheckboxComponent,
+    SelectDemoComponent,
+    ModalTestComponent,
     LucideAngularModule
   ],
   template: `
@@ -51,7 +67,7 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
       <header class="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div class="container flex h-14 items-center justify-between px-4">
           <div class="flex items-center gap-2">
-            <lucide-angular [img]="Code2Icon" class="h-6 w-6"></lucide-angular>
+            <lucide-angular [img]="icons.code" class="h-6 w-6"></lucide-angular>
             <h1 class="text-lg font-semibold">shadcn/ui for Angular</h1>
             <lib-badge variant="secondary">v1.0.0</lib-badge>
           </div>
@@ -62,14 +78,11 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
               size="icon"
               (onClick)="toggleTheme()"
             >
-              <lucide-angular 
-                [img]="themeService.resolvedTheme() === 'dark' ? SunIcon : MoonIcon" 
-                class="h-4 w-4"
-              ></lucide-angular>
+              <lucide-angular [img]="themeIcon()" class="h-4 w-4"></lucide-angular>
             </lib-button>
             
             <lib-button variant="outline" size="sm">
-              <lucide-angular [img]="CodeIcon" class="mr-2 h-4 w-4"></lucide-angular>
+              <lucide-angular [img]="icons.code" class="mr-2 h-4 w-4"></lucide-angular>
               View Code
             </lib-button>
           </div>
@@ -88,17 +101,15 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
           </p>
           
           <div class="flex items-center justify-center gap-4">
-            <lib-button size="lg">
-              Get Started
-            </lib-button>
+            <lib-button size="lg">Get Started</lib-button>
             <lib-button variant="outline" size="lg">
-              <lucide-angular [img]="CodeIcon" class="mr-2 h-4 w-4"></lucide-angular>
+              <lucide-angular [img]="icons.code" class="mr-2 h-4 w-4"></lucide-angular>
               GitHub
             </lib-button>
           </div>
         </section>
 
-        <!-- Component Showcase -->
+        <!-- Component Showcase Grid -->
         <div class="grid gap-8">
           
           <!-- Buttons Section -->
@@ -131,7 +142,7 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
                     <lib-button size="default">Default</lib-button>
                     <lib-button size="lg">Large</lib-button>
                     <lib-button size="icon">
-                      <lucide-angular [img]="SettingsIcon" class="h-4 w-4"></lucide-angular>
+                      <lucide-angular [img]="icons.settings" class="h-4 w-4"></lucide-angular>
                     </lib-button>
                   </div>
                 </div>
@@ -140,9 +151,7 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
                 <div>
                   <h4 class="text-sm font-medium mb-3">States</h4>
                   <div class="flex flex-wrap items-center gap-2">
-                    <lib-button [leftIcon]="MailIcon">
-                      With Icon
-                    </lib-button>
+                    <lib-button [leftIcon]="icons.mail">With Icon</lib-button>
                     <lib-button [loading]="buttonLoading()" (onClick)="simulateLoading()">
                       {{ buttonLoading() ? 'Loading...' : 'Click me' }}
                     </lib-button>
@@ -153,11 +162,11 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
             </lib-card>
           </section>
 
-          <!-- Form Components -->
+          <!-- Form Components Section -->
           <section class="space-y-6">
             <div>
               <h3 class="text-2xl font-semibold mb-2">Form Components</h3>
-              <p class="text-muted-foreground">Input fields, switches, and form controls.</p>
+              <p class="text-muted-foreground">Input fields, checkboxes, switches, and form controls using zoneless architecture.</p>
             </div>
             
             <lib-card class="p-6">
@@ -167,25 +176,52 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
                   
                   <lib-input 
                     placeholder="Enter your email"
-                    [(ngModel)]="demoEmail"
+                    [value]="email()"
+                    (valueChange)="onEmailChange($event)"
                   ></lib-input>
                   
                   <lib-input 
                     type="password"
                     placeholder="Password"
-                    [(ngModel)]="demoPassword"
+                    [value]="password()"
+                    (valueChange)="onPasswordChange($event)"
                   ></lib-input>
                   
-                  <div class="flex items-center space-x-2">
-                    <input 
-                      type="checkbox"
-                      id="terms"
-                      [(ngModel)]="acceptTerms"
-                      class="h-4 w-4 rounded border-input"
-                    />
-                    <label for="terms" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                      Accept terms and conditions
-                    </label>
+                  <h4 class="text-sm font-medium mt-4">Checkboxes</h4>
+                  <div class="space-y-3">
+                    <div class="flex items-center space-x-2">
+                      <lib-checkbox 
+                        id="terms-showcase"
+                        [checked]="acceptTerms()"
+                        (checkedChange)="onTermsChange($event)">
+                      </lib-checkbox>
+                      <label for="terms-showcase" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        Accept terms and conditions
+                      </label>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                      <lib-checkbox 
+                        id="marketing-showcase"
+                        size="sm"
+                        [checked]="marketingEmails()"
+                        (checkedChange)="onMarketingEmailsChange($event)">
+                      </lib-checkbox>
+                      <label for="marketing-showcase" class="text-xs">
+                        Subscribe to marketing emails
+                      </label>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                      <lib-checkbox 
+                        id="security-showcase"
+                        [checked]="securityAlerts()"
+                        (checkedChange)="onSecurityAlertsChange($event)">
+                      </lib-checkbox>
+                      <label for="security-showcase" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        Security alerts (required)
+                      </label>
+                    </div>
                   </div>
                 </div>
 
@@ -194,22 +230,27 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
                   
                   <div class="flex items-center justify-between">
                     <label class="text-sm font-medium">Notifications</label>
-                    <lib-switch [(ngModel)]="notificationsEnabled"></lib-switch>
-                  </div>
-                  
-                  <div class="flex items-center justify-between">
-                    <label class="text-sm font-medium">Dark Mode</label>
-                    <lib-switch [(ngModel)]="darkModeEnabled"></lib-switch>
+                    <lib-switch 
+                      [checked]="notificationsEnabled()"
+                      (checkedChange)="onNotificationsChange($event)">
+                    </lib-switch>
                   </div>
                   
                   <div class="flex items-center justify-between">
                     <label class="text-sm font-medium">Auto-save</label>
-                    <lib-switch size="sm" [(ngModel)]="autoSaveEnabled"></lib-switch>
+                    <lib-switch 
+                      size="sm" 
+                      [checked]="autoSaveEnabled()"
+                      (checkedChange)="onAutoSaveChange($event)">
+                    </lib-switch>
                   </div>
                 </div>
               </div>
             </lib-card>
           </section>
+
+          <!-- Select Components Section -->
+          <lib-select-demo></lib-select-demo>
 
           <!-- Display Components -->
           <section class="space-y-6">
@@ -243,14 +284,8 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
                       alt="Vercel"
                       fallback="V"
                     ></lib-avatar>
-                    <lib-avatar 
-                      fallback="JD"
-                      size="lg"
-                    ></lib-avatar>
-                    <lib-avatar 
-                      fallback="XL"
-                      size="xl"
-                    ></lib-avatar>
+                    <lib-avatar fallback="JD" size="lg"></lib-avatar>
+                    <lib-avatar fallback="XL" size="xl"></lib-avatar>
                   </div>
                 </div>
               </lib-card>
@@ -261,7 +296,7 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
                   <h4 class="text-sm font-medium">Alerts</h4>
                   
                   <lib-alert variant="default">
-                    <lucide-angular [img]="InfoIcon" class="h-4 w-4"></lucide-angular>
+                    <lucide-angular [img]="icons.info" class="h-4 w-4"></lucide-angular>
                     <div>
                       <h5 class="font-medium">Heads up!</h5>
                       <p class="text-sm text-muted-foreground mt-1">
@@ -271,7 +306,7 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
                   </lib-alert>
 
                   <lib-alert variant="destructive">
-                    <lucide-angular [img]="AlertTriangleIcon" class="h-4 w-4"></lucide-angular>
+                    <lucide-angular [img]="icons.alertTriangle" class="h-4 w-4"></lucide-angular>
                     <div>
                       <h5 class="font-medium">Error</h5>
                       <p class="text-sm text-muted-foreground mt-1">
@@ -335,7 +370,10 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
                         <label class="text-sm font-medium">Email notifications</label>
                         <p class="text-xs text-muted-foreground">Receive emails about your account activity.</p>
                       </div>
-                      <lib-switch [(ngModel)]="emailNotifications"></lib-switch>
+                      <lib-switch 
+                        [checked]="emailNotifications()"
+                        (checkedChange)="onEmailNotificationsChange($event)">
+                      </lib-switch>
                     </div>
 
                     <div class="flex items-center justify-between">
@@ -343,7 +381,10 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
                         <label class="text-sm font-medium">Marketing emails</label>
                         <p class="text-xs text-muted-foreground">Receive emails about new products and features.</p>
                       </div>
-                      <lib-switch [(ngModel)]="marketingEmails"></lib-switch>
+                      <lib-switch 
+                        [checked]="marketingEmails()"
+                        (checkedChange)="onMarketingEmailsChange($event)">
+                      </lib-switch>
                     </div>
 
                     <div class="flex items-center justify-between">
@@ -351,7 +392,10 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
                         <label class="text-sm font-medium">Security alerts</label>
                         <p class="text-xs text-muted-foreground">Receive alerts about your account security.</p>
                       </div>
-                      <lib-switch [(ngModel)]="securityAlerts"></lib-switch>
+                      <lib-switch 
+                        [checked]="securityAlerts()"
+                        (checkedChange)="onSecurityAlertsChange($event)">
+                      </lib-switch>
                     </div>
 
                     <div class="flex gap-2 pt-4">
@@ -392,7 +436,8 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
                   <h4 class="text-sm font-medium">Tabs</h4>
                   <lib-tabs 
                     [tabs]="tabItems" 
-                    [(activeTab)]="activeTab">
+                    [activeTab]="activeTab()"
+                    (activeTabChange)="onTabChange($event)">
                   </lib-tabs>
                 </div>
               </lib-card>
@@ -477,7 +522,7 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
                   <div class="flex gap-4">
                     <lib-dropdown-menu [items]="dropdownMenuItems">
                       <lib-button variant="outline">
-                        <lucide-angular [img]="MenuIcon" class="h-4 w-4 mr-2"></lucide-angular>
+                        <lucide-angular [img]="icons.menu" class="h-4 w-4 mr-2"></lucide-angular>
                         Menu
                       </lib-button>
                     </lib-dropdown-menu>
@@ -510,7 +555,7 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
                     (onClick)="copyToClipboard('npm install shadcn-angular')"
                   >
                     <lucide-angular 
-                      [img]="copied() ? CheckIcon : CopyIcon" 
+                      [img]="copied() ? icons.check : icons.copy" 
                       class="h-4 w-4 mr-2"
                     ></lucide-angular>
                     {{ copied() ? 'Copied!' : 'Copy' }}
@@ -540,133 +585,245 @@ import { LucideAngularModule, Mail, Settings, User, Moon, Sun, Code, Copy, Check
               </div>
             </lib-card>
           </section>
+
+          <!-- Modal Components Section -->
+          <section class="space-y-6">
+            <h3 class="text-2xl font-semibold">Modal & Dialog Components</h3>
+            <lib-card>
+              <div class="p-6">
+                <lib-modal-test></lib-modal-test>
+              </div>
+            </lib-card>
+          </section>
         </div>
       </main>
 
       <!-- Footer -->
       <footer class="border-t mt-16 py-8">
         <div class="container mx-auto px-4 text-center text-muted-foreground">
-          <p>Built with ❤️ for the Angular community. Inspired by <a href="https://ui.shadcn.com" class="underline">shadcn/ui</a>.</p>
+          <p>Built with ❤️ for the Angular community. Inspired by <a href="https://ui.shadcn.com" target="_blank" rel="noopener noreferrer" class="underline">shadcn/ui</a>.</p>
         </div>
       </footer>
     </div>
   `,
 })
 export class ShadcnShowcaseComponent implements OnInit {
-  // Icons
-  readonly Code2Icon = Code;
-  readonly CodeIcon = Code;
-  readonly MoonIcon = Moon;
-  readonly SunIcon = Sun;
-  readonly MailIcon = Mail;
-  readonly SettingsIcon = Settings;
-  readonly UserIcon = User;
-  readonly CopyIcon = Copy;
-  readonly CheckIcon = Check;
-  readonly InfoIcon = Info;
-  readonly AlertTriangleIcon = AlertTriangle;
-  readonly HomeIcon = Home;
-  readonly ChevronRightIcon = ChevronRight;
-  readonly MenuIcon = Menu;
-  readonly ArchiveIcon = Archive;
-  readonly FolderIcon = Folder;
-  readonly FileIcon = File;
+  // Theme service injection
+  protected readonly themeService = inject(ThemeService);
 
-  // Component state
-  buttonLoading = signal(false);
-  copied = signal(false);
-  progressValue = signal(75);
-  activeTab = signal('overview');
+  // Icon constants - readonly for performance
+  protected readonly icons = {
+    code: Code,
+    moon: Moon,
+    sun: Sun,
+    mail: Mail,
+    settings: Settings,
+    user: User,
+    copy: Copy,
+    check: Check,
+    info: Info,
+    alertTriangle: AlertTriangle,
+    home: Home,
+    chevronRight: ChevronRight,
+    menu: Menu,
+    archive: Archive,
+    folder: Folder,
+    file: File,
+    globe: Globe,
+    mapPin: MapPin,
+    star: Star,
+    heart: Heart,
+    shield: Shield
+  } as const;
+
+  // UI State signals
+  private readonly _buttonLoading = signal(false);
+  private readonly _copied = signal(false);
+  private readonly _progressValue = signal(75);
+  private readonly _activeTab = signal('overview');
+
+  // Form state signals - zoneless architecture
+  private readonly _formState = {
+    email: signal(''),
+    password: signal(''),
+    acceptTerms: signal(false),
+    notifications: signal(false),
+    autoSave: signal(false),
+    emailNotifications: signal(false),
+    marketingEmails: signal(false),
+    securityAlerts: signal(false)
+  };
+
+  // Public computed values for template
+  readonly buttonLoading = computed(() => this._buttonLoading());
+  readonly copied = computed(() => this._copied());
+  readonly progressValue = computed(() => this._progressValue());
+  readonly activeTab = computed(() => this._activeTab());
   
-  // Form data
-  demoEmail = '';
-  demoPassword = '';
-  acceptTerms = false;
-  notificationsEnabled = true;
-  darkModeEnabled = false;
-  autoSaveEnabled = true;
-  emailNotifications = true;
-  marketingEmails = false;
-  securityAlerts = true;
+  // Form state accessors
+  readonly email = computed(() => this._formState.email());
+  readonly password = computed(() => this._formState.password());
+  readonly acceptTerms = computed(() => this._formState.acceptTerms());
+  readonly notificationsEnabled = computed(() => this._formState.notifications());
+  readonly autoSaveEnabled = computed(() => this._formState.autoSave());
+  readonly emailNotifications = computed(() => this._formState.emailNotifications());
+  readonly marketingEmails = computed(() => this._formState.marketingEmails());
+  readonly securityAlerts = computed(() => this._formState.securityAlerts());
 
-  // Demo data for new components
-  tabItems: TabItem[] = [
-    { id: 'overview', label: 'Overview', content: 'Overview content here...', icon: this.HomeIcon },
-    { id: 'analytics', label: 'Analytics', content: 'Analytics dashboard content...', badge: '3' },
-    { id: 'reports', label: 'Reports', content: 'Reports and data exports...' },
-    { id: 'settings', label: 'Settings', content: 'Application settings...', icon: this.SettingsIcon }
-  ];
+  // Computed theme icon
+  readonly themeIcon = computed(() => 
+    this.themeService.resolvedTheme() === 'dark' ? this.icons.sun : this.icons.moon
+  );
 
-  accordionItems: AccordionItem[] = [
-    {
-      id: 'getting-started',
-      title: 'Getting Started',
-      content: 'Learn how to install and configure the component library in your Angular project.',
-      icon: this.InfoIcon
-    },
-    {
-      id: 'components',
-      title: 'Components Overview',
-      content: 'Explore all available components including buttons, forms, navigation, and feedback elements.',
-      expanded: true
-    },
-    {
-      id: 'customization',
-      title: 'Customization Guide',
-      content: 'Customize colors, typography, spacing, and create your own design system variants.'
-    },
-    {
-      id: 'examples',
-      title: 'Code Examples',
-      content: 'Real-world examples and patterns for building modern Angular applications.'
-    }
-  ];
+  // Computed form validation state
+  readonly isFormValid = computed(() => 
+    this.email().length > 0 && 
+    this.password().length > 0 && 
+    this.acceptTerms()
+  );
 
-  dropdownMenuItems: DropdownMenuItem[] = [
-    { id: 'profile', label: 'Profile', icon: this.UserIcon, shortcut: '⌘P' },
-    { id: 'settings', label: 'Settings', icon: this.SettingsIcon, shortcut: '⌘,' },
-    { id: 'separator1', label: '', type: 'separator' },
-    { id: 'notifications', label: 'Notifications', type: 'checkbox', checked: true },
-    { id: 'email-alerts', label: 'Email Alerts', type: 'checkbox', checked: false },
-    { id: 'separator2', label: '', type: 'separator' },
-    { id: 'logout', label: 'Log out', shortcut: '⌘⇧Q' }
-  ];
+  // Computed settings summary
+  readonly settingsCount = computed(() => {
+    const settings = [
+      this.emailNotifications(),
+      this.marketingEmails(),
+      this.securityAlerts()
+    ];
+    return settings.filter(Boolean).length;
+  });
 
-  breadcrumbItems: BreadcrumbItem[] = [
-    { id: 'home', label: 'Home', href: '/', icon: this.HomeIcon },
-    { id: 'components', label: 'Components', href: '/components' },
-    { id: 'ui', label: 'UI Components', href: '/components/ui' },
-    { id: 'current', label: 'Showcase', current: true }
-  ];
-
-  constructor(public themeService: ThemeService) {}
+  // Component data arrays
+  tabItems: TabItem[] = [];
+  accordionItems: AccordionItem[] = [];
+  dropdownMenuItems: DropdownMenuItem[] = [];
+  breadcrumbItems: BreadcrumbItem[] = [];
 
   ngOnInit(): void {
-    // Component initialization - modern Angular handles change detection automatically
+    this.initializeComponentData();
   }
 
+  private initializeComponentData(): void {
+    // Initialize tab items with proper icon references
+    this.tabItems = [
+      { id: 'overview', label: 'Overview', content: 'Overview content here...', icon: this.icons.home },
+      { id: 'analytics', label: 'Analytics', content: 'Analytics dashboard content...', badge: '3' },
+      { id: 'reports', label: 'Reports', content: 'Reports and data exports...' },
+      { id: 'settings', label: 'Settings', content: 'Application settings...', icon: this.icons.settings }
+    ];
+
+    // Initialize accordion items
+    this.accordionItems = [
+      {
+        id: 'getting-started',
+        title: 'Getting Started',
+        content: 'Learn how to install and configure the component library in your Angular project.',
+        icon: this.icons.info
+      },
+      {
+        id: 'components',
+        title: 'Components Overview',
+        content: 'Explore all available components including buttons, forms, navigation, and feedback elements.',
+        expanded: true
+      },
+      {
+        id: 'customization',
+        title: 'Customization Guide',
+        content: 'Customize colors, typography, spacing, and create your own design system variants.'
+      },
+      {
+        id: 'examples',
+        title: 'Code Examples',
+        content: 'Real-world examples and patterns for building modern Angular applications.'
+      }
+    ];
+
+    // Initialize dropdown menu items
+    this.dropdownMenuItems = [
+      { id: 'profile', label: 'Profile', icon: this.icons.user, shortcut: '⌘P' },
+      { id: 'settings', label: 'Settings', icon: this.icons.settings, shortcut: '⌘,' },
+      { id: 'separator1', label: '', type: 'separator' },
+      { id: 'notifications', label: 'Notifications', type: 'checkbox', checked: true },
+      { id: 'email-alerts', label: 'Email Alerts', type: 'checkbox', checked: false },
+      { id: 'separator2', label: '', type: 'separator' },
+      { id: 'logout', label: 'Log out', shortcut: '⌘⇧Q' }
+    ];
+
+    // Initialize breadcrumb items
+    this.breadcrumbItems = [
+      { id: 'home', label: 'Home', onClick: () => this.onBreadcrumbClick('home'), icon: this.icons.home },
+      { id: 'components', label: 'Components', onClick: () => this.onBreadcrumbClick('components') },
+      { id: 'ui', label: 'UI Components', onClick: () => this.onBreadcrumbClick('ui') },
+      { id: 'current', label: 'Showcase', current: true }
+    ];
+  }
+
+  // Theme actions
   toggleTheme(): void {
     this.themeService.toggleTheme();
   }
 
+  // UI actions
   simulateLoading(): void {
-    this.buttonLoading.set(true);
+    this._buttonLoading.set(true);
     setTimeout(() => {
-      this.buttonLoading.set(false);
-      // Change detection is handled automatically by signals
+      this._buttonLoading.set(false);
     }, 2000);
   }
 
   async copyToClipboard(text: string): Promise<void> {
     try {
       await navigator.clipboard.writeText(text);
-      this.copied.set(true);
+      this._copied.set(true);
       setTimeout(() => {
-        this.copied.set(false);
-        // Change detection is handled automatically by signals
+        this._copied.set(false);
       }, 2000);
     } catch (err) {
       console.error('Failed to copy to clipboard:', err);
     }
+  }
+
+  // Navigation actions
+  onBreadcrumbClick(section: string): void {
+    console.log(`Breadcrumb clicked: ${section}`);
+    // In a real app, you would handle navigation here
+  }
+
+  // Form actions - zoneless pattern
+  onEmailChange(value: string | number): void {
+    this._formState.email.set(String(value));
+  }
+
+  onPasswordChange(value: string | number): void {
+    this._formState.password.set(String(value));
+  }
+
+  onTermsChange(checked: boolean): void {
+    this._formState.acceptTerms.set(checked);
+  }
+
+  // Switch handlers - improved signal management
+  onNotificationsChange(checked: boolean): void {
+    this._formState.notifications.set(checked);
+  }
+
+  onAutoSaveChange(checked: boolean): void {
+    this._formState.autoSave.set(checked);
+  }
+
+  onEmailNotificationsChange(checked: boolean): void {
+    this._formState.emailNotifications.set(checked);
+  }
+
+  onMarketingEmailsChange(checked: boolean): void {
+    this._formState.marketingEmails.set(checked);
+  }
+
+  onSecurityAlertsChange(checked: boolean): void {
+    this._formState.securityAlerts.set(checked);
+  }
+
+  // Tab navigation
+  onTabChange(tabId: string): void {
+    this._activeTab.set(tabId);
   }
 }

@@ -28,6 +28,9 @@
   --color-destructive: 0 84.2% 60.2%;
   --color-destructive-foreground: 210 40% 98%;
   
+  --color-success: 142.1 76.2% 36.3%;
+  --color-success-foreground: 210 40% 98%;
+  
   --color-border: 214.3 31.8% 91.4%;
   --color-input: 214.3 31.8% 91.4%;
   --color-ring: 222.2 84% 4.9%;
@@ -62,6 +65,9 @@
   --color-destructive: 0 84.2% 60.2%;
   --color-destructive-foreground: 210 40% 98%;
   
+  --color-success: 142.1 76.2% 36.3%;
+  --color-success-foreground: 210 40% 98%;
+  
   --color-border: 214.3 31.8% 91.4%;
   --color-input: 214.3 31.8% 91.4%;
   --color-ring: 222.2 84% 4.9%;
@@ -93,6 +99,9 @@
   
   --color-destructive: 0 62.8% 30.6%;
   --color-destructive-foreground: 210 40% 98%;
+  
+  --color-success: 142.1 70.6% 45.3%;
+  --color-success-foreground: 210 40% 98%;
   
   --color-border: 217.2 32.6% 17.5%;
   --color-input: 217.2 32.6% 17.5%;
@@ -159,15 +168,27 @@
 .bg-card { background-color: hsl(var(--color-card)); }
 .bg-popover { background-color: hsl(var(--color-popover)); }
 .bg-primary { background-color: hsl(var(--color-primary)); }
+.bg-primary\/90 { background-color: hsl(var(--color-primary) / 0.9); }
+.bg-primary\/10 { background-color: hsl(var(--color-primary) / 0.1); }
 .bg-secondary { background-color: hsl(var(--color-secondary)); }
+.bg-secondary\/90 { background-color: hsl(var(--color-secondary) / 0.9); }
+.bg-secondary\/10 { background-color: hsl(var(--color-secondary) / 0.1); }
 .bg-muted { background-color: hsl(var(--color-muted)); }
 .bg-accent { background-color: hsl(var(--color-accent)); }
+.bg-accent\/90 { background-color: hsl(var(--color-accent) / 0.9); }
+.bg-accent\/10 { background-color: hsl(var(--color-accent) / 0.1); }
 .bg-destructive { background-color: hsl(var(--color-destructive)); }
+.bg-destructive\/90 { background-color: hsl(var(--color-destructive) / 0.9); }
+.bg-destructive\/10 { background-color: hsl(var(--color-destructive) / 0.1); }
+.bg-success { background-color: hsl(var(--color-success)); }
+.bg-success\/90 { background-color: hsl(var(--color-success) / 0.9); }
+.bg-success\/10 { background-color: hsl(var(--color-success) / 0.1); }
 
 /* Hover background states */
 .hover\:bg-primary\/90:hover { background-color: hsl(var(--color-primary) / 0.9); }
 .hover\:bg-secondary\/80:hover { background-color: hsl(var(--color-secondary) / 0.8); }
 .hover\:bg-destructive\/90:hover { background-color: hsl(var(--color-destructive) / 0.9); }
+.hover\:bg-success\/90:hover { background-color: hsl(var(--color-success) / 0.9); }
 .hover\:bg-accent:hover { background-color: hsl(var(--color-accent)); }
 
 .text-background { color: hsl(var(--color-background)); }
@@ -181,6 +202,8 @@
 .text-accent-foreground { color: hsl(var(--color-accent-foreground)); }
 .text-destructive { color: hsl(var(--color-destructive)); }
 .text-destructive-foreground { color: hsl(var(--color-destructive-foreground)); }
+.text-success { color: hsl(var(--color-success)); }
+.text-success-foreground { color: hsl(var(--color-success-foreground)); }
 
 /* Hover text states */
 .hover\:text-accent-foreground:hover { color: hsl(var(--color-accent-foreground)); }

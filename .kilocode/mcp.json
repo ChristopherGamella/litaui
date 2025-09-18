@@ -1,0 +1,14 @@
+{
+    "mcpServers":
+    {
+        "angular-cli": {
+            "command": "npx",
+            "args": ["@angular/cli", "mcp"],
+            "env": {
+            "ANGULAR_MODERN": "true",
+            "ANGULAR_VERSION": "20.1",
+            "ANGULAR_STRICT": "true"
+            }
+        }
+    }
+}

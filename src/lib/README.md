@@ -194,12 +194,16 @@ export class ExampleComponent {}
 | ✅ Input | Complete | Form inputs with validation states |
 | ✅ Checkbox | Complete | Boolean selection with indeterminate state |
 | ✅ Alert | Complete | Contextual feedback messages |
-| 🚧 Select | In Progress | Dropdown selection with search |
-| 🚧 Modal | In Progress | Overlay dialogs and sheets |
-| 📋 Avatar | Planned | User profile images and initials |
-| 📋 Switch | Planned | Toggle switches |
-| 📋 Tabs | Planned | Navigation tabs |
-| 📋 Tooltip | Planned | Contextual information popover |
+| ✅ Select | Complete | Dropdown selection with search |
+| ✅ Modal | Complete | Overlay dialogs with focus management |
+| ✅ Avatar | Complete | User profile images and initials |
+| ✅ Switch | Complete | Toggle switches with form integration |
+| ✅ Tabs | Complete | Navigation tabs with content management |
+| ✅ Tooltip | Complete | Contextual information popover with CDK |
+| ✅ Accordion | Complete | Collapsible content sections |
+| ✅ Breadcrumb | Complete | Navigation path indicators |
+| ✅ Dropdown Menu | Complete | Context menus with keyboard navigation |
+| ✅ Progress | Complete | Progress indicators with variants |
 | 📋 Popover | Planned | Floating content containers |
 | 📋 Command | Planned | Command palette interface |
 | 📋 Calendar | Planned | Date selection and display |
@@ -300,9 +304,11 @@ export class AppComponent {
 <lib-button variant="link">Link</lib-button>
 
 <!-- Sizes -->
+<lib-button size="xs">Extra Small</lib-button>
 <lib-button size="sm">Small</lib-button>
 <lib-button size="default">Default</lib-button>
 <lib-button size="lg">Large</lib-button>
+<lib-button size="xl">Extra Large</lib-button>
 <lib-button size="icon">
   <lucide-icon name="heart"></lucide-icon>
 </lib-button>
@@ -318,6 +324,253 @@ export class AppComponent {
   <lucide-icon name="loader-2" class="mr-2 h-4 w-4 animate-spin"></lucide-icon>
   Please wait
 </lib-button>
+```
+
+### Avatar Component
+
+```html
+<!-- Basic usage -->
+<lib-avatar 
+  src="https://github.com/shadcn.png"
+  alt="@shadcn"
+  fallback="CN">
+</lib-avatar>
+
+<!-- Sizes -->
+<lib-avatar size="sm" fallback="SM"></lib-avatar>
+<lib-avatar size="default" fallback="MD"></lib-avatar>
+<lib-avatar size="lg" fallback="LG"></lib-avatar>
+<lib-avatar size="xl" fallback="XL"></lib-avatar>
+
+<!-- Fallback only -->
+<lib-avatar fallback="JD"></lib-avatar>
+```
+
+### Switch Component
+
+```html
+<!-- Basic switch -->
+<lib-switch 
+  [checked]="isEnabled()"
+  (checkedChange)="isEnabled.set($event)">
+</lib-switch>
+
+<!-- With label -->
+<div class="flex items-center space-x-2">
+  <lib-switch 
+    id="airplane-mode"
+    [checked]="airplaneMode()"
+    (checkedChange)="airplaneMode.set($event)">
+  </lib-switch>
+  <label for="airplane-mode">Airplane Mode</label>
+</div>
+
+<!-- Sizes -->
+<lib-switch size="sm"></lib-switch>
+<lib-switch size="default"></lib-switch>
+<lib-switch size="lg"></lib-switch>
+
+<!-- Form integration -->
+<form [formGroup]="form">
+  <lib-switch 
+    formControlName="notifications"
+    [checked]="form.get('notifications')?.value"
+    (checkedChange)="form.get('notifications')?.setValue($event)">
+  </lib-switch>
+</form>
+```
+
+### Tabs Component
+
+```html
+<!-- Basic tabs -->
+<lib-tabs 
+  [tabs]="tabs()"
+  [value]="activeTab()"
+  (valueChange)="activeTab.set($event)">
+</lib-tabs>
+
+<!-- With icons and badges -->
+<lib-tabs 
+  [tabs]="[
+    { id: 'overview', label: 'Overview', icon: 'home' },
+    { id: 'analytics', label: 'Analytics', icon: 'chart-bar', badge: '5' },
+    { id: 'reports', label: 'Reports', icon: 'file-text' },
+    { id: 'notifications', label: 'Notifications', icon: 'bell', disabled: true }
+  ]"
+  orientation="horizontal"
+  variant="default">
+</lib-tabs>
+
+<!-- Vertical tabs -->
+<lib-tabs 
+  [tabs]="verticalTabs()"
+  orientation="vertical"
+  variant="pills">
+</lib-tabs>
+```
+
+### Tooltip Component
+
+```html
+<!-- Basic tooltip -->
+<lib-tooltip content="Add to library">
+  <lib-button variant="outline">Hover me</lib-button>
+</lib-tooltip>
+
+<!-- Positioned tooltips -->
+<lib-tooltip content="Top tooltip" position="top">
+  <lib-button>Top</lib-button>
+</lib-tooltip>
+
+<lib-tooltip content="Right tooltip" position="right">
+  <lib-button>Right</lib-button>
+</lib-tooltip>
+
+<!-- Rich content tooltip -->
+<lib-tooltip [contentTemplate]="tooltipTemplate">
+  <lib-button variant="ghost">Rich content</lib-button>
+</lib-tooltip>
+
+<ng-template #tooltipTemplate>
+  <div class="flex items-center gap-2">
+    <lucide-icon name="command" class="h-4 w-4"></lucide-icon>
+    <span>Keyboard shortcut</span>
+    <kbd class="px-1 py-0.5 text-xs bg-muted rounded">⌘K</kbd>
+  </div>
+</ng-template>
+```
+
+### Accordion Component
+
+```html
+<!-- Basic accordion -->
+<lib-accordion 
+  [items]="accordionItems()"
+  [value]="openAccordion()"
+  (valueChange)="openAccordion.set($event)"
+  type="single"
+  collapsible>
+</lib-accordion>
+
+<!-- Multiple accordion -->
+<lib-accordion 
+  [items]="[
+    { 
+      id: 'item-1', 
+      title: 'Is it accessible?',
+      content: 'Yes. It adheres to the WAI-ARIA design pattern.'
+    },
+    { 
+      id: 'item-2', 
+      title: 'Is it styled?',
+      content: 'Yes. It comes with default styles that match the other components aesthetic.'
+    }
+  ]"
+  type="multiple">
+</lib-accordion>
+
+<!-- With icons -->
+<lib-accordion 
+  [items]="iconAccordionItems()"
+  variant="default"
+  size="md">
+</lib-accordion>
+```
+
+### Dropdown Menu Component
+
+```html
+<!-- Basic dropdown -->
+<lib-dropdown-menu 
+  [items]="menuItems()"
+  (itemClick)="handleMenuClick($event)">
+  <lib-button variant="outline">
+    Open Menu
+    <lucide-icon name="chevron-down" class="ml-2 h-4 w-4"></lucide-icon>
+  </lib-button>
+</lib-dropdown-menu>
+
+<!-- Complex menu with separators and shortcuts -->
+<lib-dropdown-menu 
+  [items]="[
+    { id: 'new', label: 'New Tab', icon: 'plus', shortcut: '⌘T' },
+    { id: 'separator1', type: 'separator' },
+    { id: 'copy', label: 'Copy Link', icon: 'copy', shortcut: '⌘C' },
+    { id: 'edit', label: 'Edit', icon: 'edit' },
+    { id: 'separator2', type: 'separator' },
+    { id: 'delete', label: 'Delete', icon: 'trash', type: 'destructive' }
+  ]"
+  position="bottom-start">
+  <lib-button variant="ghost" size="icon">
+    <lucide-icon name="more-horizontal" class="h-4 w-4"></lucide-icon>
+  </lib-button>
+</lib-dropdown-menu>
+```
+
+### Progress Component
+
+```html
+<!-- Basic progress -->
+<lib-progress [value]="progress()" max="100"></lib-progress>
+
+<!-- With variants -->
+<lib-progress [value]="75" variant="success" size="lg"></lib-progress>
+<lib-progress [value]="45" variant="warning" size="md"></lib-progress>
+<lib-progress [value]="25" variant="error" size="sm"></lib-progress>
+
+<!-- Indeterminate progress -->
+<lib-progress 
+  [indeterminate]="isLoading()"
+  variant="default"
+  size="md">
+</lib-progress>
+
+<!-- Circular progress -->
+<lib-progress 
+  [value]="progress()"
+  type="circular"
+  size="lg"
+  [showValue]="true">
+</lib-progress>
+
+<!-- Stepped progress -->
+<lib-progress 
+  [value]="currentStep()"
+  [max]="totalSteps()"
+  [steps]="stepLabels()"
+  type="stepped">
+</lib-progress>
+```
+
+### Breadcrumb Component
+
+```html
+<!-- Basic breadcrumbs -->
+<lib-breadcrumb 
+  [items]="[
+    { id: 'home', label: 'Home', href: '/' },
+    { id: 'docs', label: 'Documentation', href: '/docs' },
+    { id: 'components', label: 'Components', current: true }
+  ]">
+</lib-breadcrumb>
+
+<!-- With icons -->
+<lib-breadcrumb 
+  [items]="[
+    { id: 'home', label: 'Home', icon: 'home', href: '/' },
+    { id: 'projects', label: 'Projects', icon: 'folder', href: '/projects' },
+    { id: 'current', label: 'shadcn-ui', icon: 'file', current: true }
+  ]"
+  separator="chevron">
+</lib-breadcrumb>
+
+<!-- Custom separator -->
+<lib-breadcrumb 
+  [items]="breadcrumbItems()"
+  separator="slash"
+  variant="ghost">
+</lib-breadcrumb>
 ```
 
 ### Card Component
@@ -371,6 +624,204 @@ export class AppComponent {
     Create account
   </lib-button>
 </form>
+```
+
+### Modal Component
+
+```html
+<!-- Basic Modal -->
+<lib-modal 
+  [open]="isModalOpen()" 
+  (openChange)="isModalOpen.set($event)"
+  title="Confirm Action"
+  description="This action cannot be undone."
+>
+  <p class="text-sm text-muted-foreground">
+    Are you sure you want to delete this item? This action is permanent.
+  </p>
+  
+  <div modal-footer>
+    <lib-button variant="outline" (click)="isModalOpen.set(false)">
+      Cancel
+    </lib-button>
+    <lib-button variant="destructive" (click)="confirmDelete()">
+      Delete
+    </lib-button>
+  </div>
+</lib-modal>
+
+<!-- Form Modal -->
+<lib-modal 
+  [open]="formModalOpen()" 
+  (openChange)="formModalOpen.set($event)"
+  title="Create New Project"
+  description="Add a new project to your workspace."
+  size="lg"
+>
+  <div class="space-y-4">
+    <lib-input 
+      placeholder="Project name"
+      label="Name"
+      [value]="projectForm().name"
+      (valueChange)="updateProjectForm('name', $event)"
+    />
+    <lib-input 
+      placeholder="Project description"
+      label="Description"
+      [value]="projectForm().description"
+      (valueChange)="updateProjectForm('description', $event)"
+    />
+    <div class="flex items-center space-x-2">
+      <lib-switch 
+        [checked]="projectForm().isPublic"
+        (checkedChange)="updateProjectForm('isPublic', $event)"
+      />
+      <label class="text-sm">Make project public</label>
+    </div>
+  </div>
+  
+  <div modal-footer>
+    <lib-button variant="outline" (click)="formModalOpen.set(false)">
+      Cancel
+    </lib-button>
+    <lib-button (click)="createProject()">
+      Create Project
+    </lib-button>
+  </div>
+</lib-modal>
+
+<!-- Size Variants -->
+<lib-modal size="xs" [open]="smallModal()">...</lib-modal>
+<lib-modal size="sm" [open]="mediumModal()">...</lib-modal>
+<lib-modal size="lg" [open]="largeModal()">...</lib-modal>
+<lib-modal size="xl" [open]="extraLargeModal()">...</lib-modal>
+<lib-modal size="full" [open]="fullScreenModal()">...</lib-modal>
+
+<!-- Position Variants -->
+<lib-modal position="center" [open]="centerModal()">...</lib-modal>
+<lib-modal position="top" [open]="topModal()">...</lib-modal>
+<lib-modal position="bottom" [open]="bottomModal()">...</lib-modal>
+
+<!-- Configuration Options -->
+<lib-modal 
+  [open]="configModal()"
+  [closeOnOverlayClick]="false"
+  [closeOnEscape]="false"
+  [showCloseButton]="false"
+>
+  <!-- Modal that can only be closed via action buttons -->
+</lib-modal>
+
+<!-- Nested Modals -->
+<lib-modal [open]="firstModal()">
+  <lib-button (click)="secondModal.set(true)">
+    Open Second Modal
+  </lib-button>
+  
+  <lib-modal [open]="secondModal()">
+    <!-- Second modal content -->
+  </lib-modal>
+</lib-modal>
+```
+
+### Modal TypeScript Implementation
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { ModalComponent } from 'shadcn-angular';
+
+@Component({
+  selector: 'app-modal-example',
+  template: `
+    <!-- Modal trigger -->
+    <lib-button (click)="openModal()">
+      Open Modal
+    </lib-button>
+    
+    <!-- Modal -->
+    <lib-modal 
+      [open]="isOpen()" 
+      (openChange)="handleOpenChange($event)"
+      (onOpen)="handleModalOpen()"
+      (onClose)="handleModalClose()"
+      title="Example Modal"
+      description="This is an example modal implementation."
+    >
+      <div class="space-y-4">
+        <p>Modal content goes here.</p>
+        
+        <lib-input 
+          placeholder="Enter some text"
+          [value]="inputValue()"
+          (valueChange)="inputValue.set($event)"
+        />
+      </div>
+      
+      <div modal-footer>
+        <lib-button variant="outline" (click)="closeModal()">
+          Cancel
+        </lib-button>
+        <lib-button (click)="saveAndClose()">
+          Save Changes
+        </lib-button>
+      </div>
+    </lib-modal>
+  `
+})
+export class ModalExampleComponent {
+  // Modal state
+  readonly isOpen = signal(false);
+  readonly inputValue = signal('');
+
+  /**
+   * Open the modal
+   */
+  openModal(): void {
+    this.isOpen.set(true);
+  }
+
+  /**
+   * Close the modal
+   */
+  closeModal(): void {
+    this.isOpen.set(false);
+  }
+
+  /**
+   * Handle modal open/close state changes
+   */
+  handleOpenChange(open: boolean): void {
+    this.isOpen.set(open);
+  }
+
+  /**
+   * Handle modal opened event
+   */
+  handleModalOpen(): void {
+    console.log('Modal opened');
+    // Focus management, analytics, etc.
+  }
+
+  /**
+   * Handle modal closed event
+   */
+  handleModalClose(): void {
+    console.log('Modal closed');
+    // Cleanup, save draft, etc.
+  }
+
+  /**
+   * Save data and close modal
+   */
+  saveAndClose(): void {
+    // Save logic here
+    console.log('Saving:', this.inputValue());
+    this.closeModal();
+    
+    // Reset form
+    this.inputValue.set('');
+  }
+}
 ```
 
 ## 🔧 Advanced Usage
@@ -466,9 +917,34 @@ export class UserCardComponent {
 <lib-modal 
   [open]="isOpen"
   (openChange)="onOpenChange($event)"
-  [focusTrap]="true">
-  <!-- Modal content -->
+  title="Accessible Modal"
+  description="This modal demonstrates accessibility features."
+  [closeOnEscape]="true"
+  [showCloseButton]="true">
+  
+  <!-- Modal automatically manages focus and keyboard navigation -->
+  <div class="space-y-4">
+    <lib-input 
+      label="Name"
+      placeholder="Enter your name"
+      [value]="name()"
+      (valueChange)="name.set($event)"
+    />
+    <lib-button (click)="submitForm()">
+      Submit
+    </lib-button>
+  </div>
 </lib-modal>
+
+<!-- Modal accessibility features:
+  - Automatic focus trapping within modal
+  - Escape key closes modal (configurable)
+  - Click outside closes modal (configurable)
+  - Proper ARIA attributes (role="dialog", aria-modal="true")
+  - Screen reader announcements
+  - Focus restoration when closed
+  - Keyboard navigation support
+-->
 ```
 
 ## 🧪 Testing
@@ -631,7 +1107,8 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ## 📋 Roadmap
 
 ### Q4 2024
-- [ ] Complete core components (Avatar, Switch, Tabs, Tooltip)
+- [x] Complete core components (Avatar, Switch, Tabs, Tooltip)
+- [x] Advanced components (Accordion, Breadcrumb, Dropdown Menu, Progress)
 - [ ] Form components with validation
 - [ ] Storybook integration
 - [ ] CLI tool for component generation

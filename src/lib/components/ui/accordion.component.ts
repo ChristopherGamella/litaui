@@ -1,8 +1,5 @@
 import { 
   Component, 
-  Input, 
-  Output, 
-  EventEmitter, 
   computed, 
   input, 
   output, 
@@ -157,7 +154,7 @@ export const accordionContentVariants = cva(
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <div [class]="containerClasses()" [attr.data-testid]="dataTestid">
+    <div [class]="containerClasses()" [attr.data-testid]="dataTestid()">
       @for (item of items(); track item.id) {
         <div [class]="itemClasses()">
           <!-- Accordion Header/Trigger -->
@@ -174,7 +171,7 @@ export const accordionContentVariants = cva(
               (keydown)="handleKeyDown($event, item.id)"
             >
               <!-- Icon -->
-              @if (item.icon) {
+              @if (item.icon && item.icon !== null && item.icon !== undefined) {
                 <lucide-angular [img]="item.icon" class="h-4 w-4 mr-2"></lucide-angular>
               }
               
@@ -188,10 +185,12 @@ export const accordionContentVariants = cva(
               }
               
               <!-- Chevron Icon -->
-              <lucide-angular
-                [img]="ChevronDownIcon()"
-                class="h-4 w-4 shrink-0 transition-transform duration-200"
-              ></lucide-angular>
+              @if (ChevronDownIcon() && ChevronDownIcon() !== null) {
+                <lucide-angular
+                  [img]="ChevronDownIcon()"
+                  class="h-4 w-4 shrink-0 transition-transform duration-200"
+                ></lucide-angular>
+              }
             </button>
           </h3>
           
@@ -303,12 +302,10 @@ export class AccordionComponent implements OnInit {
   readonly multiple = input<boolean>(false);
   readonly collapsible = input<boolean>(true);
   readonly disabled = input<boolean>(false);
-
-  // Traditional inputs
-  @Input() id?: string;
-  @Input() class?: string;
-  @Input() dataTestid?: string;
-  @Input() ariaLabel?: string;
+  readonly id = input<string>();
+  readonly class = input<string>();
+  readonly dataTestid = input<string>();
+  readonly ariaLabel = input<string>();
 
   // Modern signal outputs
   readonly itemToggled = output<{ id: string; expanded: boolean }>();
@@ -352,7 +349,7 @@ export class AccordionComponent implements OnInit {
         variant: this.variant(),
         size: this.size(),
       }),
-      this.class
+      this.class()
     );
   });
 

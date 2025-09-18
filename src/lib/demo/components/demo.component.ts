@@ -46,6 +46,7 @@ import { ThemeService } from '../../utils/theme';
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <lib-button variant="default">Default</lib-button>
             <lib-button variant="secondary">Secondary</lib-button>
+            <lib-button variant="success">Success</lib-button>
             <lib-button variant="outline">Outline</lib-button>
             <lib-button variant="ghost">Ghost</lib-button>
             <lib-button variant="link">Link</lib-button>
@@ -175,7 +176,7 @@ import { ThemeService } from '../../utils/theme';
               <h3 class="text-lg font-medium text-foreground">Status Colors</h3>
               <div class="space-y-2">
                 <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 rounded bg-green-500"></div>
+                  <div class="w-8 h-8 rounded bg-success"></div>
                   <span class="text-sm text-muted-foreground">Success</span>
                 </div>
                 <div class="flex items-center space-x-3">

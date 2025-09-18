@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostBinding, computed, input, output, OnInit } from '@angular/core';
+import { Component, HostBinding, computed, input, output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { cva, type VariantProps, cn } from '../../utils/cn';
@@ -15,6 +15,7 @@ export const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        success: "bg-success text-success-foreground hover:bg-success/90",
         outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "text-foreground hover:bg-accent hover:text-accent-foreground",
@@ -51,6 +52,7 @@ export type ButtonVariant = VariantProps<typeof buttonVariants>;
  * <!-- Variants -->
  * <lib-button variant="outline">Outline</lib-button>
  * <lib-button variant="destructive">Delete</lib-button>
+ * <lib-button variant="success">Save</lib-button>
  * <lib-button variant="ghost">Ghost</lib-button>
  * <lib-button variant="link">Link</lib-button>
  * 
@@ -83,14 +85,14 @@ export type ButtonVariant = VariantProps<typeof buttonVariants>;
   imports: [CommonModule, LucideAngularModule],
   template: `
     <button
-      [type]="type"
+      [type]="type()"
       [disabled]="disabled() || loading()"
-      [attr.aria-label]="ariaLabel"
-      [attr.aria-describedby]="ariaDescribedBy"
-      [attr.aria-expanded]="ariaExpanded"
-      [attr.role]="role"
-      [attr.tabindex]="tabIndex"
-      [attr.data-testid]="dataTestid"
+      [attr.aria-label]="ariaLabel()"
+      [attr.aria-describedby]="ariaDescribedBy()"
+      [attr.aria-expanded]="ariaExpanded()"
+      [attr.role]="role()"
+      [attr.tabindex]="tabIndex()"
+      [attr.data-testid]="dataTestid()"
       [class]="buttonClasses()"
       (click)="handleClick($event)"
       (focus)="onFocus.emit($event)"
@@ -100,16 +102,16 @@ export type ButtonVariant = VariantProps<typeof buttonVariants>;
       <!-- Loading spinner -->
       @if (loading()) {
         <div class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden="true"></div>
-        @if (loadingText) {
-          {{ loadingText }}
+        @if (loadingText()) {
+          {{ loadingText() }}
         } @else {
           <span class="sr-only">Loading</span>
         }
       } @else {
         <!-- Left icon -->
-        @if (leftIcon) {
+        @if (leftIcon() && leftIcon() !== null && leftIcon() !== undefined) {
           <lucide-angular
-            [img]="leftIcon"
+            [img]="leftIcon()"
             size="16"
             class="shrink-0"
             aria-hidden="true"
@@ -120,9 +122,9 @@ export type ButtonVariant = VariantProps<typeof buttonVariants>;
         <ng-content></ng-content>
 
         <!-- Right icon -->
-        @if (rightIcon) {
+        @if (rightIcon() && rightIcon() !== null && rightIcon() !== undefined) {
           <lucide-angular
-            [img]="rightIcon"
+            [img]="rightIcon()"
             size="16"
             class="shrink-0"
             aria-hidden="true"
@@ -166,27 +168,23 @@ export type ButtonVariant = VariantProps<typeof buttonVariants>;
 })
 export class ButtonComponent implements OnInit {
   // Modern signal inputs (Angular 17+)
-  variant = input<'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'>('default');
-  size = input<'xs' | 'sm' | 'default' | 'md' | 'lg' | 'xl' | 'icon'>('default');
-  disabled = input<boolean>(false);
-  loading = input<boolean>(false);
-
-  // Traditional inputs for compatibility
-  @Input() type: 'button' | 'submit' | 'reset' = 'button';
-  @Input() loadingText?: string;
-  @Input() leftIcon?: any;
-  @Input() rightIcon?: any;
-  @Input() fullWidth = false;
-  @Input() id?: string;
-  @Input() class?: string;
-  @Input() dataTestid?: string;
-
-  // Accessibility inputs
-  @Input() ariaLabel?: string;
-  @Input() ariaDescribedBy?: string;
-  @Input() ariaExpanded?: boolean;
-  @Input() role?: string;
-  @Input() tabIndex?: number;
+  readonly variant = input<'default' | 'destructive' | 'success' | 'outline' | 'secondary' | 'ghost' | 'link'>('default');
+  readonly size = input<'xs' | 'sm' | 'default' | 'md' | 'lg' | 'xl' | 'icon'>('default');
+  readonly disabled = input<boolean>(false);
+  readonly loading = input<boolean>(false);
+  readonly type = input<'button' | 'submit' | 'reset'>('button');
+  readonly loadingText = input<string>();
+  readonly leftIcon = input<any>();
+  readonly rightIcon = input<any>();
+  readonly fullWidth = input<boolean>(false);
+  readonly id = input<string>();
+  readonly class = input<string>();
+  readonly dataTestid = input<string>();
+  readonly ariaLabel = input<string>();
+  readonly ariaDescribedBy = input<string>();
+  readonly ariaExpanded = input<boolean>();
+  readonly role = input<string>();
+  readonly tabIndex = input<number>();
 
   // Modern signal outputs
   onClick = output<Event>();
@@ -202,7 +200,7 @@ export class ButtonComponent implements OnInit {
   // Host bindings for dynamic classes
   @HostBinding('class')
   get hostClasses(): string {
-    return this.fullWidth ? 'full-width' : '';
+    return this.fullWidth() ? 'full-width' : '';
   }
 
   @HostBinding('attr.data-loading')
@@ -224,7 +222,7 @@ export class ButtonComponent implements OnInit {
         variant: this.variant(),
         size: this.size(),
       }),
-      this.class
+      this.class()
     );
   });
 

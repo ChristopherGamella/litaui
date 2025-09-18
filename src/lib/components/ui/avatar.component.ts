@@ -1,4 +1,4 @@
-import { Component, Input, computed, input } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { cva, type VariantProps, cn } from '../../utils/cn';
 
@@ -53,19 +53,19 @@ export type AvatarVariant = VariantProps<typeof avatarVariants>;
   imports: [CommonModule],
   template: `
     <div [class]="containerClasses()">
-      @if (src && !imageError) {
+      @if (src() && !imageError()) {
         <img 
-          [src]="src"
-          [alt]="alt"
+          [src]="src()"
+          [alt]="alt()"
           [class]="imageClasses"
           (error)="onImageError()"
           (load)="onImageLoad()"
         />
       }
       
-      @if (!src || imageError) {
+      @if (!src() || imageError()) {
         <div [class]="fallbackClasses">
-          {{ fallback }}
+          {{ fallback() }}
         </div>
       }
     </div>
@@ -73,16 +73,14 @@ export type AvatarVariant = VariantProps<typeof avatarVariants>;
 })
 export class AvatarComponent {
   // Signal inputs
-  size = input<'sm' | 'default' | 'lg' | 'xl'>('default');
-  
-  // Traditional inputs
-  @Input() src?: string;
-  @Input() alt?: string;
-  @Input() fallback = '??';
-  @Input() class?: string;
+  readonly size = input<'sm' | 'default' | 'lg' | 'xl'>('default');
+  readonly src = input<string>();
+  readonly alt = input<string>();
+  readonly fallback = input<string>('??');
+  readonly class = input<string>();
 
   // Internal state
-  protected imageError = false;
+  protected imageError = signal<boolean>(false);
 
   // Computed classes
   protected containerClasses = computed(() => {
@@ -90,7 +88,7 @@ export class AvatarComponent {
       avatarVariants({
         size: this.size(),
       }),
-      this.class
+      this.class()
     );
   });
 
@@ -98,10 +96,10 @@ export class AvatarComponent {
   protected fallbackClasses = "flex h-full w-full items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground";
 
   protected onImageError(): void {
-    this.imageError = true;
+    this.imageError.set(true);
   }
 
   protected onImageLoad(): void {
-    this.imageError = false;
+    this.imageError.set(false);
   }
 }

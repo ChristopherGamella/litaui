@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, HostBinding, HostListener, ElementRef, ViewChild, AfterViewInit, OnDestroy, inject } from '@angular/core';
+import { Component, computed, input, output, HostBinding, HostListener, ElementRef, ViewChild, AfterViewInit, OnDestroy, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, X } from 'lucide-angular';
 import { cva, type VariantProps } from '../../utils/cn';
@@ -65,52 +65,52 @@ export type ModalContentVariant = VariantProps<typeof modalContentVariants>;
   template: `
     <!-- Backdrop -->
     <div
-      *ngIf="open"
+      *ngIf="open()"
       class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
-      [class]="backdropClasses"
+      [class]="backdropClasses()"
       (click)="handleBackdropClick($event)"
-      [attr.aria-hidden]="!open"
+      [attr.aria-hidden]="!open()"
     >
       <!-- Modal Content -->
       <div
         #modalContent
         role="dialog"
-        [attr.aria-modal]="open"
-        [attr.aria-labelledby]="title ? 'modal-title' : undefined"
-        [attr.aria-describedby]="description ? 'modal-description' : undefined"
-        [attr.data-testid]="dataTestid"
-        [class]="contentClasses"
+        [attr.aria-modal]="open()"
+        [attr.aria-labelledby]="title() ? 'modal-title' : undefined"
+        [attr.aria-describedby]="description() ? 'modal-description' : undefined"
+        [attr.data-testid]="dataTestid()"
+        [class]="contentClasses()"
         (keydown)="handleKeydown($event)"
         tabindex="-1"
       >
         <!-- Close Button -->
-        @if (showCloseButton) {
+        @if (showCloseButton()) {
           <button
             class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
             (click)="closeModal()"
-            [attr.aria-label]="'Close ' + (title || 'modal')"
+            [attr.aria-label]="'Close ' + (title() || 'modal')"
           >
             <lucide-angular [img]="XIcon" size="16" class="text-muted-foreground"></lucide-angular>
           </button>
         }
 
         <!-- Modal Header -->
-        @if (title || description) {
+        @if (title() || description()) {
           <div class="flex flex-col space-y-1.5 text-center sm:text-left">
-            @if (title) {
+            @if (title()) {
               <h2
                 id="modal-title"
                 class="text-lg font-semibold leading-none tracking-tight text-foreground"
               >
-                {{ title }}
+                {{ title() }}
               </h2>
             }
-            @if (description) {
+            @if (description()) {
               <p
                 id="modal-description"
                 class="text-sm text-muted-foreground"
               >
-                {{ description }}
+                {{ description() }}
               </p>
             }
           </div>
@@ -175,26 +175,26 @@ export type ModalContentVariant = VariantProps<typeof modalContentVariants>;
     }
   `]
 })
-export class ModalComponent implements ModalProps, AfterViewInit, OnDestroy {
+export class ModalComponent implements AfterViewInit, OnDestroy {
   @ViewChild('modalContent') modalContent!: ElementRef<HTMLElement>;
 
-  // Component inputs
-  @Input() open = false;
-  @Input() title?: string;
-  @Input() description?: string;
-  @Input() size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full' = 'md';
-  @Input() position: 'center' | 'top' | 'bottom' | 'left' | 'right' = 'center';
-  @Input() closeOnOverlayClick = true;
-  @Input() closeOnEscape = true;
-  @Input() showCloseButton = true;
-  @Input() id?: string;
-  @Input() class?: string;
-  @Input() dataTestid?: string;
+  // Signal inputs
+  readonly open = input<boolean>(false);
+  readonly title = input<string>();
+  readonly description = input<string>();
+  readonly size = input<'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full'>('md');
+  readonly position = input<'center' | 'top' | 'bottom' | 'left' | 'right'>('center');
+  readonly closeOnOverlayClick = input<boolean>(true);
+  readonly closeOnEscape = input<boolean>(true);
+  readonly showCloseButton = input<boolean>(true);
+  readonly id = input<string>();
+  readonly class = input<string>();
+  readonly dataTestid = input<string>();
 
-  // Event outputs
-  @Output() openChange = new EventEmitter<boolean>();
-  @Output() onOpen = new EventEmitter<void>();
-  @Output() onClose = new EventEmitter<void>();
+  // Signal outputs
+  readonly openChange = output<boolean>();
+  readonly onOpen = output<void>();
+  readonly onClose = output<void>();
 
   // Icons
   readonly XIcon = X;
@@ -203,8 +203,18 @@ export class ModalComponent implements ModalProps, AfterViewInit, OnDestroy {
   private previousFocusElement?: HTMLElement;
   private focusableElements: HTMLElement[] = [];
 
+  constructor() {
+    effect(() => {
+      if (this.open()) {
+        this.handleModalOpen();
+      } else {
+        this.handleModalClose();
+      }
+    });
+  }
+
   ngAfterViewInit(): void {
-    if (this.open) {
+    if (this.open()) {
       this.handleModalOpen();
     }
   }
@@ -216,52 +226,42 @@ export class ModalComponent implements ModalProps, AfterViewInit, OnDestroy {
   /**
    * Computed backdrop classes
    */
-  get backdropClasses(): string {
+  readonly backdropClasses = computed(() => {
     return modalBackdropVariants({
-      position: this.position,
+      position: this.position(),
     } as any);
-  }
+  });
 
   /**
    * Computed content classes
    */
-  get contentClasses(): string {
+  readonly contentClasses = computed(() => {
     const baseClasses = modalContentVariants({
-      size: this.size,
+      size: this.size(),
     } as any);
 
     const classes = [baseClasses];
 
     // Add custom class if provided
-    if (this.class) {
-      classes.push(this.class);
+    const customClass = this.class();
+    if (customClass) {
+      classes.push(customClass);
     }
 
     // Add animation classes
-    if (this.open) {
+    if (this.open()) {
       classes.push('modal-enter');
     }
 
     return classes.join(' ');
-  }
+  });
 
   /**
    * Handle modal open state changes
    */
   @HostBinding('attr.aria-hidden')
   get ariaHidden(): boolean | null {
-    return this.open ? null : true;
-  }
-
-  /**
-   * Watch for open state changes
-   */
-  ngOnChanges(): void {
-    if (this.open) {
-      this.handleModalOpen();
-    } else {
-      this.handleModalClose();
-    }
+    return this.open() ? null : true;
   }
 
   /**
@@ -305,7 +305,7 @@ export class ModalComponent implements ModalProps, AfterViewInit, OnDestroy {
    * Handle backdrop click
    */
   handleBackdropClick(event: Event): void {
-    if (event.target === event.currentTarget && this.closeOnOverlayClick) {
+    if (event.target === event.currentTarget && this.closeOnOverlayClick()) {
       this.closeModal();
     }
   }
@@ -316,7 +316,7 @@ export class ModalComponent implements ModalProps, AfterViewInit, OnDestroy {
   handleKeydown(event: KeyboardEvent): void {
     switch (event.key) {
       case 'Escape':
-        if (this.closeOnEscape) {
+        if (this.closeOnEscape()) {
           event.preventDefault();
           this.closeModal();
         }
@@ -388,7 +388,6 @@ export class ModalComponent implements ModalProps, AfterViewInit, OnDestroy {
    * Close modal
    */
   closeModal(): void {
-    this.open = false;
     this.openChange.emit(false);
   }
 
@@ -396,7 +395,6 @@ export class ModalComponent implements ModalProps, AfterViewInit, OnDestroy {
    * Open modal
    */
   openModal(): void {
-    this.open = true;
     this.openChange.emit(true);
   }
 }
@@ -412,16 +410,17 @@ export class ModalComponent implements ModalProps, AfterViewInit, OnDestroy {
     <ng-content
       (click)="handleTriggerClick()"
       [attr.aria-haspopup]="true"
-      [attr.aria-expanded]="modal?.open"
+      [attr.aria-expanded]="modal()?.open()"
     ></ng-content>
   `
 })
 export class ModalTriggerComponent {
-  @Input() modal?: ModalComponent;
+  readonly modal = input<ModalComponent>();
 
   handleTriggerClick(): void {
-    if (this.modal) {
-      this.modal.openModal();
+    const modalInstance = this.modal();
+    if (modalInstance) {
+      modalInstance.openModal();
     }
   }
 }
