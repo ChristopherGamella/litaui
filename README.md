@@ -51,9 +51,10 @@ Our component library is located in `src/lib/` and includes:
 
 ### Core Components ✅
 - Button, Badge, Card, Alert, Avatar
-- Input, Checkbox, Switch, Select
+- Input, Checkbox, Switch, Select  
 - Progress, Tooltip, Modal, Popover
 - Tabs, Breadcrumb, Dropdown Menu, Accordion
+- **Command** - Search palette with keyboard navigation 🆕
 
 ### Organization
 ```

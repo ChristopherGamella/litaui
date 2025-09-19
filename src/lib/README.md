@@ -205,7 +205,7 @@ export class ExampleComponent {}
 | ✅ Dropdown Menu | Complete | Context menus with keyboard navigation |
 | ✅ Progress | Complete | Progress indicators with variants |
 | ✅ Popover | Complete | Floating content containers with positioning |
-| 📋 Command | Planned | Command palette interface |
+| ✅ Command | Complete | Command palette interface |
 | 📋 Calendar | Planned | Date selection and display |
 | 📋 Table | Planned | Data tables with sorting/filtering |
 
@@ -780,6 +780,347 @@ export class PopoverExampleComponent {
     <lib-button>Save</lib-button>
   </lib-card-footer>
 </lib-card>
+```
+
+### Command Component
+
+```html
+<!-- Basic Command Palette -->
+<lib-command class="rounded-lg border shadow-md md:min-w-[450px]">
+  <lib-command-input placeholder="Type a command or search..." />
+  <lib-command-list>
+    <lib-command-empty>No results found.</lib-command-empty>
+    
+    <lib-command-group heading="Suggestions">
+      <lib-command-item 
+        value="calendar" 
+        (select)="onCommand('calendar')"
+      >
+        <lucide-icon name="calendar" class="mr-2 h-4 w-4"></lucide-icon>
+        <span>Calendar</span>
+      </lib-command-item>
+      
+      <lib-command-item 
+        value="search-emoji" 
+        (select)="onCommand('search-emoji')"
+      >
+        <lucide-icon name="smile" class="mr-2 h-4 w-4"></lucide-icon>
+        <span>Search Emoji</span>
+      </lib-command-item>
+      
+      <lib-command-item 
+        value="calculator" 
+        [disabled]="true"
+        (select)="onCommand('calculator')"
+      >
+        <lucide-icon name="calculator" class="mr-2 h-4 w-4"></lucide-icon>
+        <span>Calculator</span>
+      </lib-command-item>
+    </lib-command-group>
+    
+    <lib-command-separator />
+    
+    <lib-command-group heading="Settings">
+      <lib-command-item 
+        value="profile" 
+        (select)="onCommand('profile')"
+      >
+        <lucide-icon name="user" class="mr-2 h-4 w-4"></lucide-icon>
+        <span>Profile</span>
+        <lib-command-shortcut>⌘P</lib-command-shortcut>
+      </lib-command-item>
+      
+      <lib-command-item 
+        value="billing" 
+        (select)="onCommand('billing')"
+      >
+        <lucide-icon name="credit-card" class="mr-2 h-4 w-4"></lucide-icon>
+        <span>Billing</span>
+        <lib-command-shortcut>⌘B</lib-command-shortcut>
+      </lib-command-item>
+      
+      <lib-command-item 
+        value="settings" 
+        (select)="onCommand('settings')"
+      >
+        <lucide-icon name="settings" class="mr-2 h-4 w-4"></lucide-icon>
+        <span>Settings</span>
+        <lib-command-shortcut>⌘S</lib-command-shortcut>
+      </lib-command-item>
+    </lib-command-group>
+  </lib-command-list>
+</lib-command>
+
+<!-- Command Dialog -->
+<lib-command-dialog
+  [open]="commandOpen()"
+  (openChange)="commandOpen.set($event)"
+  title="Command Palette"
+  description="Search for a command to run..."
+>
+  <lib-command-input placeholder="Type a command or search..." />
+  <lib-command-list>
+    <lib-command-empty>No results found.</lib-command-empty>
+    
+    <lib-command-group heading="Quick Actions">
+      <lib-command-item (select)="createNew()">
+        <lucide-icon name="plus" class="mr-2 h-4 w-4"></lucide-icon>
+        <span>Create New</span>
+        <lib-command-shortcut>⌘N</lib-command-shortcut>
+      </lib-command-item>
+      
+      <lib-command-item (select)="openSearch()">
+        <lucide-icon name="search" class="mr-2 h-4 w-4"></lucide-icon>
+        <span>Search</span>
+        <lib-command-shortcut>⌘F</lib-command-shortcut>
+      </lib-command-item>
+    </lib-command-group>
+    
+    <lib-command-separator />
+    
+    <lib-command-group heading="Navigation">
+      <lib-command-item (select)="goToDashboard()">
+        <lucide-icon name="home" class="mr-2 h-4 w-4"></lucide-icon>
+        <span>Dashboard</span>
+      </lib-command-item>
+      
+      <lib-command-item (select)="goToSettings()">
+        <lucide-icon name="settings" class="mr-2 h-4 w-4"></lucide-icon>
+        <span>Settings</span>
+      </lib-command-item>
+    </lib-command-group>
+  </lib-command-list>
+</lib-command-dialog>
+```
+
+### Command TypeScript Implementation
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { 
+  CommandComponent, 
+  CommandDialogComponent,
+  CommandInputComponent,
+  CommandListComponent,
+  CommandEmptyComponent,
+  CommandGroupComponent,
+  CommandItemComponent,
+  CommandSeparatorComponent,
+  CommandShortcutComponent
+} from 'shadcn-angular';
+
+@Component({
+  selector: 'app-command-example',
+  template: `
+    <!-- Command Trigger Button -->
+    <lib-button 
+      variant="outline" 
+      (click)="openCommand()"
+      class="gap-2"
+    >
+      <lucide-icon name="command" class="h-4 w-4"></lucide-icon>
+      Open Command Palette
+      <kbd class="ml-auto px-1.5 py-0.5 text-xs bg-muted rounded">⌘K</kbd>
+    </lib-button>
+
+    <!-- Command Dialog -->
+    <lib-command-dialog
+      [open]="isOpen()"
+      (openChange)="handleOpenChange($event)"
+      title="Command Palette"
+      description="Search for actions and commands..."
+    >
+      <lib-command-input 
+        placeholder="What do you want to do?"
+        (valueChange)="onSearchChange($event)"
+      />
+      
+      <lib-command-list>
+        <lib-command-empty>
+          No commands found for "{{ searchQuery() }}".
+        </lib-command-empty>
+        
+        <!-- Recent Commands -->
+        <lib-command-group 
+          *ngIf="recentCommands().length > 0" 
+          heading="Recent"
+        >
+          <lib-command-item 
+            *ngFor="let cmd of recentCommands()" 
+            [value]="cmd.value"
+            (select)="executeCommand(cmd)"
+          >
+            <lucide-icon [name]="cmd.icon" class="mr-2 h-4 w-4"></lucide-icon>
+            <span>{{ cmd.label }}</span>
+            <lib-command-shortcut *ngIf="cmd.shortcut">
+              {{ cmd.shortcut }}
+            </lib-command-shortcut>
+          </lib-command-item>
+        </lib-command-group>
+        
+        <!-- File Operations -->
+        <lib-command-group heading="File">
+          <lib-command-item 
+            value="new-file"
+            (select)="createNewFile()"
+          >
+            <lucide-icon name="file-plus" class="mr-2 h-4 w-4"></lucide-icon>
+            <span>New File</span>
+            <lib-command-shortcut>⌘N</lib-command-shortcut>
+          </lib-command-item>
+          
+          <lib-command-item 
+            value="open-file"
+            (select)="openFile()"
+          >
+            <lucide-icon name="folder-open" class="mr-2 h-4 w-4"></lucide-icon>
+            <span>Open File</span>
+            <lib-command-shortcut>⌘O</lib-command-shortcut>
+          </lib-command-item>
+          
+          <lib-command-item 
+            value="save-file"
+            (select)="saveFile()"
+            [disabled]="!canSave()"
+          >
+            <lucide-icon name="save" class="mr-2 h-4 w-4"></lucide-icon>
+            <span>Save</span>
+            <lib-command-shortcut>⌘S</lib-command-shortcut>
+          </lib-command-item>
+        </lib-command-group>
+        
+        <lib-command-separator />
+        
+        <!-- View Options -->
+        <lib-command-group heading="View">
+          <lib-command-item 
+            value="toggle-sidebar"
+            (select)="toggleSidebar()"
+          >
+            <lucide-icon name="sidebar" class="mr-2 h-4 w-4"></lucide-icon>
+            <span>Toggle Sidebar</span>
+            <lib-command-shortcut>⌘B</lib-command-shortcut>
+          </lib-command-item>
+          
+          <lib-command-item 
+            value="toggle-theme"
+            (select)="toggleTheme()"
+          >
+            <lucide-icon [name]="isDark() ? 'sun' : 'moon'" class="mr-2 h-4 w-4"></lucide-icon>
+            <span>Toggle {{ isDark() ? 'Light' : 'Dark' }} Mode</span>
+            <lib-command-shortcut>⌘⇧T</lib-command-shortcut>
+          </lib-command-item>
+        </lib-command-group>
+      </lib-command-list>
+    </lib-command-dialog>
+  `,
+  host: {
+    '(keydown)': 'onGlobalKeyDown($event)'
+  }
+})
+export class CommandExampleComponent {
+  // State
+  readonly isOpen = signal(false);
+  readonly searchQuery = signal('');
+  readonly recentCommands = signal([
+    { value: 'dashboard', label: 'Go to Dashboard', icon: 'home', shortcut: '⌘H' },
+    { value: 'profile', label: 'View Profile', icon: 'user', shortcut: '⌘P' }
+  ]);
+
+  /**
+   * Open command palette
+   */
+  openCommand(): void {
+    this.isOpen.set(true);
+  }
+
+  /**
+   * Handle command palette open/close
+   */
+  handleOpenChange(open: boolean): void {
+    this.isOpen.set(open);
+    if (!open) {
+      this.searchQuery.set('');
+    }
+  }
+
+  /**
+   * Handle search input changes
+   */
+  onSearchChange(query: string): void {
+    this.searchQuery.set(query);
+  }
+
+  /**
+   * Execute a command and close palette
+   */
+  executeCommand(command: any): void {
+    console.log('Executing command:', command);
+    this.isOpen.set(false);
+    
+    // Add to recent commands
+    this.addToRecent(command);
+  }
+
+  /**
+   * Global keyboard shortcuts
+   */
+  onGlobalKeyDown(event: KeyboardEvent): void {
+    // ⌘K or Ctrl+K to open command palette
+    if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+      event.preventDefault();
+      this.isOpen.update(open => !open);
+    }
+  }
+
+  // Command implementations
+  createNewFile(): void {
+    this.executeCommand({ value: 'new-file', label: 'New File', icon: 'file-plus' });
+  }
+
+  openFile(): void {
+    this.executeCommand({ value: 'open-file', label: 'Open File', icon: 'folder-open' });
+  }
+
+  saveFile(): void {
+    this.executeCommand({ value: 'save-file', label: 'Save', icon: 'save' });
+  }
+
+  toggleSidebar(): void {
+    this.executeCommand({ value: 'toggle-sidebar', label: 'Toggle Sidebar', icon: 'sidebar' });
+  }
+
+  toggleTheme(): void {
+    this.executeCommand({ value: 'toggle-theme', label: 'Toggle Theme', icon: 'moon' });
+  }
+
+  // Helper methods
+  canSave(): boolean {
+    return true; // Implement your save logic
+  }
+
+  isDark(): boolean {
+    return false; // Implement your theme detection
+  }
+
+  private addToRecent(command: any): void {
+    // Implementation for adding to recent commands
+  }
+}
+
+// Command Features:
+// - Global keyboard shortcuts (⌘K to open/close)
+// - Real-time search filtering with instant results
+// - Keyboard navigation (↑↓ arrows, Enter to select, Esc to close)
+// - Organized command groups with headings and separators
+// - Keyboard shortcuts display for quick reference
+// - Disabled states for unavailable commands
+// - Recent commands tracking and display
+// - Icon support with Lucide icons
+// - Accessible with proper ARIA attributes
+// - Customizable styling and theming
+// - TypeScript support with proper interfaces
+// - Event-driven architecture for command execution
 ```
 
 ### Form Components

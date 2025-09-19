@@ -7,11 +7,6 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'test',
-    loadComponent: () => import('../lib/demo/components/button-test.component').then(c => c.ButtonTestComponent),
-    title: 'Button Test'
-  },
-  {
     path: 'demo',
     loadComponent: () => import('../lib/demo/components/demo.component').then(c => c.DemoComponent),
     title: 'Component Demo'
@@ -20,16 +15,6 @@ export const routes: Routes = [
     path: 'comprehensive',
     loadComponent: () => import('../lib/demo/components/shadcn-showcase.component').then(c => c.ShadcnShowcaseComponent),
     title: 'Comprehensive Demo'
-  },
-  {
-    path: 'checkbox',
-    loadComponent: () => import('../lib/demo/components/checkbox-demo.component').then(c => c.CheckboxDemoComponent),
-    title: 'Checkbox Demo'
-  },
-  {
-    path: 'checkbox-test',
-    loadComponent: () => import('../lib/demo/components/checkbox-test.component').then(c => c.CheckboxTestComponent),
-    title: 'Checkbox Test'
   },
   // Documentation routes
   {
@@ -64,6 +49,11 @@ export const routes: Routes = [
             path: 'card',
             loadComponent: () => import('./docs/components/card.component').then(c => c.DocsCardComponent),
             title: 'Card - Components'
+          },
+          {
+            path: 'command',
+            loadComponent: () => import('./docs/components/command.component').then(c => c.DocsCommandComponent),
+            title: 'Command - Components'
           }
           // TODO: Add remaining components as they are created
           // {

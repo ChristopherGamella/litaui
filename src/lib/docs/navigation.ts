@@ -71,6 +71,12 @@ export const DOC_NAVIGATION: DocNavigationItem[] = [
             description: 'Content containers with headers/footers'
           },
           {
+            id: 'command',
+            title: 'Command',
+            href: '/docs/components/command',
+            description: 'Command palette with search and navigation'
+          },
+          {
             id: 'alert',
             title: 'Alert',
             href: '/docs/components/alert',

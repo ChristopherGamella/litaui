@@ -36,6 +36,19 @@ export { DropdownMenuComponent } from './components/ui/dropdown-menu.component';
 export { BreadcrumbComponent } from './components/ui/breadcrumb.component';
 export { PopoverComponent } from './components/ui/popover.component';
 
+// Export Command components
+export { 
+  CommandComponent,
+  CommandInputComponent,
+  CommandListComponent,
+  CommandEmptyComponent,
+  CommandGroupComponent,
+  CommandItemComponent,
+  CommandSeparatorComponent,
+  CommandShortcutComponent,
+  CommandDialogComponent
+} from './components/ui/command.component';
+
 // Export demo components from new location
 export * from './demo/components/demo.component';
 export * from './demo/components/button-test.component';
@@ -43,6 +56,7 @@ export * from './demo/components/shadcn-showcase.component';
 export * from './demo/components/modal-test.component';
 export * from './demo/components/documentation.component';
 export { PopoverDemoComponent } from './demo/components/popover-demo.component';
+export { CommandDemoComponent } from './demo/components/command-demo.component';
 
 // Future components (will be added as they are created)
 // export * from './components/ui/badge';

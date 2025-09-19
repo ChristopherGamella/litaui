@@ -13,3 +13,4 @@ export * from './components/select-demo.component';
 export * from './components/checkbox-demo.component';
 export * from './components/checkbox-test.component';
 export * from './components/popover-demo.component';
+export * from './components/command-demo.component';
