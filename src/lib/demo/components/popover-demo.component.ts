@@ -191,7 +191,7 @@ import { InputComponent } from '../../components/ui/input.component';
             Make changes to your profile here. Click save when you're done.
           </p>
         </div>
-        <div class="grid gap-2">
+        <div class="space-y-3">
           <div class="grid grid-cols-3 items-center gap-4">
             <label class="text-sm">Name</label>
             <lib-input 

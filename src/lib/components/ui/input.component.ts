@@ -1,4 +1,4 @@
-import { Component, HostBinding, ElementRef, ViewChild, AfterViewInit, forwardRef, signal, input, output, computed } from '@angular/core';
+import { Component, HostBinding, ElementRef, ViewChild, AfterViewInit, forwardRef, signal, input, output, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
@@ -186,6 +186,14 @@ export class InputComponent implements AfterViewInit, ControlValueAccessor {
     // Dynamic import for X icon (clear button)
     import('lucide-angular').then(({ X }) => {
       this.XIcon.set(X);
+    });
+
+    // Sync external value input with internal state
+    effect(() => {
+      const externalValue = this.value();
+      if (externalValue !== this._currentValue()) {
+        this._currentValue.set(externalValue || '');
+      }
     });
   }
 

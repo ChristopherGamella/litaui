@@ -342,6 +342,7 @@ export class PopoverComponent implements OnInit, OnDestroy, AfterViewInit {
       case 'Escape':
         if (this.isOpen()) {
           event.preventDefault();
+          event.stopImmediatePropagation();
           this.close();
         }
         break;
@@ -356,6 +357,7 @@ export class PopoverComponent implements OnInit, OnDestroy, AfterViewInit {
       case 'Escape':
         if (this.closeOnEscape()) {
           event.preventDefault();
+          event.stopImmediatePropagation();
           this.escapeKeyDown.emit(event);
           this.close();
           // Focus back to trigger
@@ -479,7 +481,10 @@ export class PopoverComponent implements OnInit, OnDestroy, AfterViewInit {
    * Handle document-level keyboard events
    */
   private handleDocumentKeyDown = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape' && this.closeOnEscape()) {
+    // Only handle escape if this popover is open and visible
+    if (event.key === 'Escape' && this.closeOnEscape() && this.isOpen()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
       this.escapeKeyDown.emit(event);
       this.close();
     }

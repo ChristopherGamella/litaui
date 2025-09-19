@@ -13,6 +13,7 @@ import { AccordionComponent, AccordionItem } from '../../components/ui/accordion
 import { DropdownMenuComponent, DropdownMenuItem } from '../../components/ui/dropdown-menu.component';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../components/ui/breadcrumb.component';
 import { CheckboxComponent } from '../../components/ui/checkbox.component';
+import { PopoverDemoComponent } from './popover-demo.component';
 import { SelectDemoComponent } from './select-demo.component';
 import { ModalTestComponent } from './modal-test.component';
 import { ThemeService } from '../../utils/theme';
@@ -57,6 +58,7 @@ import { LucideAngularModule,
     DropdownMenuComponent,
     BreadcrumbComponent,
     CheckboxComponent,
+    PopoverDemoComponent,
     SelectDemoComponent,
     ModalTestComponent,
     LucideAngularModule
@@ -124,7 +126,7 @@ import { LucideAngularModule,
                 <!-- Button Variants -->
                 <div>
                   <h4 class="text-sm font-medium mb-3">Variants</h4>
-                  <div class="flex flex-wrap items-center gap-2">
+                  <div class="flex flex-wrap items-center gap-3">
                     <lib-button variant="default">Default</lib-button>
                     <lib-button variant="secondary">Secondary</lib-button>
                     <lib-button variant="outline">Outline</lib-button>
@@ -137,7 +139,7 @@ import { LucideAngularModule,
                 <!-- Button Sizes -->
                 <div>
                   <h4 class="text-sm font-medium mb-3">Sizes</h4>
-                  <div class="flex flex-wrap items-center gap-2">
+                  <div class="flex flex-wrap items-center gap-3">
                     <lib-button size="sm">Small</lib-button>
                     <lib-button size="default">Default</lib-button>
                     <lib-button size="lg">Large</lib-button>
@@ -150,7 +152,7 @@ import { LucideAngularModule,
                 <!-- Button States -->
                 <div>
                   <h4 class="text-sm font-medium mb-3">States</h4>
-                  <div class="flex flex-wrap items-center gap-2">
+                  <div class="flex flex-wrap items-center gap-3">
                     <lib-button [leftIcon]="icons.mail">With Icon</lib-button>
                     <lib-button [loading]="buttonLoading()" (onClick)="simulateLoading()">
                       {{ buttonLoading() ? 'Loading...' : 'Click me' }}
@@ -252,6 +254,9 @@ import { LucideAngularModule,
           <!-- Select Components Section -->
           <lib-select-demo></lib-select-demo>
 
+          <!-- Popover Components Section -->
+          <lib-popover-demo></lib-popover-demo>
+
           <!-- Display Components -->
           <section class="space-y-6">
             <div>
@@ -264,7 +269,7 @@ import { LucideAngularModule,
               <lib-card class="p-6">
                 <div class="space-y-4">
                   <h4 class="text-sm font-medium">Badges</h4>
-                  <div class="flex flex-wrap items-center gap-2">
+                  <div class="flex flex-wrap items-center gap-3">
                     <lib-badge variant="default">Default</lib-badge>
                     <lib-badge variant="secondary">Secondary</lib-badge>
                     <lib-badge variant="outline">Outline</lib-badge>
@@ -398,7 +403,7 @@ import { LucideAngularModule,
                       </lib-switch>
                     </div>
 
-                    <div class="flex gap-2 pt-4">
+                    <div class="flex gap-3 pt-4">
                       <lib-button size="sm">Save changes</lib-button>
                       <lib-button variant="outline" size="sm">Cancel</lib-button>
                     </div>

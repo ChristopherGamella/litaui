@@ -399,9 +399,13 @@ export class DropdownMenuComponent implements OnInit, OnDestroy {
   }
 
   // Listen for escape key to close dropdown
-  @HostListener('document:keydown.escape')
-  onEscapeKey(): void {
-    this.close();
+  @HostListener('document:keydown', ['$event'])
+  onEscapeKey(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this._isOpen()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.close();
+    }
   }
 
   /**
