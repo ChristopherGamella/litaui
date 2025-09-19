@@ -167,7 +167,7 @@ export type ButtonVariant = VariantProps<typeof buttonVariants>;
   `]
 })
 export class ButtonComponent implements OnInit {
-  // Modern signal inputs (Angular 17+)
+  // Modern signal inputs (Angular 20+)
   readonly variant = input<'default' | 'destructive' | 'success' | 'outline' | 'secondary' | 'ghost' | 'link'>('default');
   readonly size = input<'xs' | 'sm' | 'default' | 'md' | 'lg' | 'xl' | 'icon'>('default');
   readonly disabled = input<boolean>(false);

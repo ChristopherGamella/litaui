@@ -83,13 +83,15 @@
     "@angular/platform-browser": "^20.3.1",
     "@angular/router": "^20.3.1",
     "@tailwindcss/postcss": "^4.1.13",
+    "@types/prismjs": "^1.26.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-angular": "^0.544.0",
     "postcss": "^8.5.6",
+    "prismjs": "^1.30.0",
     "rxjs": "~7.8.0",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": ">=4.1.13",
+    "tailwindcss": ">=3.0.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {

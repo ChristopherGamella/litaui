@@ -157,6 +157,22 @@
     color: hsl(var(--color-foreground));
   }
   
+  /* Typography spacing for documentation */
+  .prose h2 {
+    margin-bottom: 1.5rem; /* 24px */
+    margin-top: 2rem; /* 32px */
+  }
+  
+  .prose h3 {
+    margin-bottom: 1rem; /* 16px */
+    margin-top: 1.5rem; /* 24px */
+  }
+  
+  .prose h4 {
+    margin-bottom: 0.75rem; /* 12px */
+    margin-top: 1.25rem; /* 20px */
+  }
+  
   p {
     color: hsl(var(--color-foreground));
   }
@@ -215,3 +231,125 @@
 .ring-ring { --tw-ring-color: hsl(var(--color-ring)); }
 .ring-offset-background { --tw-ring-offset-color: hsl(var(--color-background)); }
 .ring-ring { --tw-ring-color: hsl(var(--color-ring)); }
+
+/* Prism.js Syntax Highlighting Theme (Custom theme based on our design system) */
+/* Code blocks */
+code[class*="language-"],
+pre[class*="language-"] {
+  color: hsl(var(--color-foreground));
+  background: none;
+  text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+  font-family: 'SF Mono', Monaco, Inconsolata, 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: 0.875rem;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  tab-size: 4;
+  hyphens: none;
+}
+
+/* Code blocks container */
+pre[class*="language-"] {
+  padding: 1rem;
+  margin: 0;
+  overflow: auto;
+  border-radius: var(--radius);
+  background: hsl(var(--color-muted));
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background: hsl(var(--color-muted));
+  color: hsl(var(--color-foreground));
+}
+
+/* Syntax highlighting colors */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: hsl(var(--color-muted-foreground));
+  font-style: italic;
+}
+
+.token.punctuation {
+  color: hsl(var(--color-foreground));
+}
+
+.namespace {
+  opacity: 0.7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: hsl(0 84.2% 60.2%); /* destructive color */
+}
+
+.token.boolean,
+.token.number {
+  color: hsl(142.1 76.2% 36.3%); /* success color */
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: hsl(142.1 76.2% 36.3%); /* success color */
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+  color: hsl(var(--color-foreground));
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+  color: hsl(221.2 83.2% 53.3%); /* primary blue */
+}
+
+.token.keyword {
+  color: hsl(262.1 83.3% 57.8%); /* purple */
+}
+
+.token.regex,
+.token.important {
+  color: hsl(0 84.2% 60.2%); /* destructive color */
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+/* Dark theme adjustments */
+.dark pre[class*="language-"] {
+  background: hsl(var(--color-muted));
+}
+
+.dark :not(pre) > code[class*="language-"] {
+  background: hsl(var(--color-muted));
+}

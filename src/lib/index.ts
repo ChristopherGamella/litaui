@@ -41,6 +41,7 @@ export * from './demo/components/demo.component';
 export * from './demo/components/button-test.component';
 export * from './demo/components/shadcn-showcase.component';
 export * from './demo/components/modal-test.component';
+export * from './demo/components/documentation.component';
 export { PopoverDemoComponent } from './demo/components/popover-demo.component';
 
 // Future components (will be added as they are created)

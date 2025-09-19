@@ -34,6 +34,7 @@ This is an Angular component library similar to shadcn/ui, focusing on:
 - Design token system for consistent theming
 - Comprehensive demo and documentation components
 - Modern Angular features (standalone components, signals, etc.)
+- Match the shadcn/ui aesthetic with better visual hierarchy, icons, and styling that's consistent with modern design systems.
 
 ## Critical Design System Validation Protocol
 

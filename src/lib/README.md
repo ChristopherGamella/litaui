@@ -23,7 +23,7 @@ A complete Angular implementation of shadcn/ui - copy, paste, and customize. Bui
 - 🎨 **Themeable**: CSS variables, dark mode, and custom color schemes
 - 📦 **Tree Shakeable**: Import only what you need, optimized bundle size
 - 🔧 **Developer Experience**: Full TypeScript support, IntelliSense, and documentation
-- 🧪 **Battle Tested**: Comprehensive test suite and real-world usage
+- 🧪 **Battle Tested**: Comprehensive test suite and real-world usage validation
 
 ## 🚀 Quick Start
 
@@ -204,7 +204,7 @@ export class ExampleComponent {}
 | ✅ Breadcrumb | Complete | Navigation path indicators |
 | ✅ Dropdown Menu | Complete | Context menus with keyboard navigation |
 | ✅ Progress | Complete | Progress indicators with variants |
-| 📋 Popover | Planned | Floating content containers |
+| ✅ Popover | Complete | Floating content containers with positioning |
 | 📋 Command | Planned | Command palette interface |
 | 📋 Calendar | Planned | Date selection and display |
 | 📋 Table | Planned | Data tables with sorting/filtering |
@@ -506,6 +506,191 @@ export class AppComponent {
     <lucide-icon name="more-horizontal" class="h-4 w-4"></lucide-icon>
   </lib-button>
 </lib-dropdown-menu>
+```
+
+### Popover Component
+
+```html
+<!-- Basic Popover -->
+<lib-popover [contentTemplate]="basicContent">
+  <lib-button variant="outline">Open popover</lib-button>
+</lib-popover>
+
+<ng-template #basicContent>
+  <div class="grid gap-4">
+    <div class="space-y-2">
+      <h4 class="font-medium leading-none">Dimensions</h4>
+      <p class="text-sm text-muted-foreground">
+        Set the dimensions for the layer.
+      </p>
+    </div>
+    <div class="space-y-3">
+      <div class="grid grid-cols-3 items-center gap-4">
+        <label class="text-sm">Width</label>
+        <lib-input placeholder="100%" class="col-span-2 h-8"></lib-input>
+      </div>
+      <div class="grid grid-cols-3 items-center gap-4">
+        <label class="text-sm">Height</label>
+        <lib-input placeholder="25px" class="col-span-2 h-8"></lib-input>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Placement Options -->
+<lib-popover placement="top-start" [contentTemplate]="content">
+  <lib-button size="sm">Top Start</lib-button>
+</lib-popover>
+<lib-popover placement="bottom-end" [contentTemplate]="content">
+  <lib-button size="sm">Bottom End</lib-button>
+</lib-popover>
+
+<!-- Controlled Popover -->
+<lib-popover 
+  [isOpenControlled]="isControlledOpen()" 
+  (openChange)="setControlledOpen($event)"
+  [contentTemplate]="controlledContent">
+  <lib-button variant="outline">Controlled Trigger</lib-button>
+</lib-popover>
+
+<lib-button 
+  variant="secondary" 
+  size="sm"
+  (onClick)="toggleControlled()">
+  {{ isControlledOpen() ? 'Close' : 'Open' }} Externally
+</lib-button>
+
+<!-- Modal Popover -->
+<lib-popover 
+  [modal]="true" 
+  [contentTemplate]="modalContent"
+  [closeOnClickOutside]="false">
+  <lib-button variant="outline">Open Modal Popover</lib-button>
+</lib-popover>
+
+<!-- Form in Popover -->
+<lib-popover [contentTemplate]="formContent" placement="bottom-start">
+  <lib-button variant="outline">Edit Profile</lib-button>
+</lib-popover>
+
+<ng-template #formContent>
+  <div class="grid gap-4">
+    <div class="space-y-2">
+      <h4 class="font-medium leading-none">Edit profile</h4>
+      <p class="text-sm text-muted-foreground">
+        Make changes to your profile here. Click save when you're done.
+      </p>
+    </div>
+    <div class="space-y-3">
+      <div class="grid grid-cols-3 items-center gap-4">
+        <label class="text-sm">Name</label>
+        <lib-input 
+          [value]="profileForm.name"
+          (valueChange)="updateProfile('name', $event)"
+          class="col-span-2 h-8">
+        </lib-input>
+      </div>
+      <div class="grid grid-cols-3 items-center gap-4">
+        <label class="text-sm">Username</label>
+        <lib-input 
+          [value]="profileForm.username"
+          (valueChange)="updateProfile('username', $event)"
+          class="col-span-2 h-8">
+        </lib-input>
+      </div>
+    </div>
+    <div class="flex justify-end">
+      <lib-button size="sm" (onClick)="saveProfile()">
+        Save changes
+      </lib-button>
+    </div>
+  </div>
+</ng-template>
+```
+
+### Popover TypeScript Implementation
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { PopoverComponent } from 'shadcn-angular';
+
+@Component({
+  selector: 'app-popover-example',
+  template: `
+    <lib-popover 
+      [contentTemplate]="popoverContent"
+      [isOpenControlled]="isOpen()"
+      (openChange)="handleOpenChange($event)"
+      placement="bottom-start">
+      <lib-button variant="outline">
+        Open Popover
+      </lib-button>
+    </lib-popover>
+    
+    <ng-template #popoverContent>
+      <div class="space-y-4">
+        <h4 class="font-medium">Popover Content</h4>
+        <p class="text-sm text-muted-foreground">
+          This is the popover content with interactive elements.
+        </p>
+        
+        <lib-input 
+          placeholder="Enter text..."
+          [value]="inputValue()"
+          (valueChange)="inputValue.set($event)">
+        </lib-input>
+        
+        <div class="flex justify-end gap-2">
+          <lib-button size="sm" variant="outline" (onClick)="closePopover()">
+            Cancel
+          </lib-button>
+          <lib-button size="sm" (onClick)="saveAndClose()">
+            Save
+          </lib-button>
+        </div>
+      </div>
+    </ng-template>
+  `
+})
+export class PopoverExampleComponent {
+  // Popover state
+  readonly isOpen = signal(false);
+  readonly inputValue = signal('');
+
+  /**
+   * Handle popover open/close state changes
+   */
+  handleOpenChange(open: boolean): void {
+    this.isOpen.set(open);
+  }
+
+  /**
+   * Close the popover
+   */
+  closePopover(): void {
+    this.isOpen.set(false);
+  }
+
+  /**
+   * Save data and close popover
+   */
+  saveAndClose(): void {
+    console.log('Saving:', this.inputValue());
+    this.closePopover();
+    this.inputValue.set('');
+  }
+}
+
+// Popover Features:
+// - Template-based content with full Angular support
+// - 12 placement options (top, bottom, left, right with start/center/end variants)
+// - Controlled and uncontrolled modes
+// - Modal mode with focus trapping
+// - Configurable close behavior (click outside, escape key)
+// - Form integration with reactive controls
+// - Accessibility features (ARIA attributes, keyboard navigation)
+// - Custom styling support
+// - Event callbacks (onOpen, onClose, openChange)
 ```
 
 ### Progress Component

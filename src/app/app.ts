@@ -1,9 +1,10 @@
 import { Component, signal, OnInit } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterOutlet, RouterLink } from '@angular/router';
+import { ThemeToggleComponent } from './components/theme-toggle.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, ThemeToggleComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
