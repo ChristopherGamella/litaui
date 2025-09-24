@@ -16,6 +16,8 @@ export * from './types';
 
 // Export components
 export * from './components/ui/button.component';
+export * from './components/button/button.component';
+export * from './components/button/button.variants';
 export * from './components/ui/card.component';
 export * from './components/ui/input.component';
 export * from './components/ui/modal.component';

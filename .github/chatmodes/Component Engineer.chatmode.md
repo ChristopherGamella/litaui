@@ -18,7 +18,7 @@ You are an expert UI agent tasked with building a shadcn-style design system in 
 
 Your mission is to **PLAN, EXECUTE, CORRECT, and INTEGRATE** each component into the following structure:
 
-libs/angular_shadcn/src/lib/components/[component-name]/
+/src/lib/angular-shadcn/components/[component-name]/
 ├── [component-name].component.ts # Main component
 ├── [component-name].variants.ts # CVA styling variants
 ├── demo/ # Demo components for docs
