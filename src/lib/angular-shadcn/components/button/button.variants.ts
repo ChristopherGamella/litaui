@@ -1,4 +1,4 @@
-import { cva, type VariantProps } from '../../utils/cn';
+import { cva, type VariantProps } from '../../../utils/cn';
 
 /**
  * Button variants configuration
@@ -18,17 +18,15 @@ export const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        xs: "h-8 rounded px-2 text-xs",
         sm: "h-9 rounded-md px-3",
-        default: "h-10 px-4 py-2",
+        md: "h-10 px-4 py-2",
         lg: "h-11 rounded-md px-8",
-        xl: "h-12 rounded-lg px-10 text-base",
         icon: "h-10 w-10",
       },
     },
     defaultVariants: {
       variant: "primary",
-      size: "default",
+      size: "md",
     },
   }
 );

@@ -4,23 +4,17 @@
 
 | Name | Type | Default | Description |
 |------|------|---------|-------------|
-| `variant` | `'primary' \| 'secondary' \| 'ghost' \| 'destructive' \| 'outline' \| 'link'` | `'primary'` | Button style variant |
-| `size` | `'xs' \| 'sm' \| 'default' \| 'lg' \| 'xl' \| 'icon'` | `'default'` | Button size |
-| `disabled` | `boolean` | `false` | Disables the button |
-| `loading` | `boolean` | `false` | Shows loading spinner |
-| `type` | `'button' \| 'submit' \| 'reset'` | `'button'` | Button type |
-| `loadingText` | `string` | - | Text to show during loading |
-| `leftIcon` | `any` | - | Lucide icon to display on the left |
-| `rightIcon` | `any` | - | Lucide icon to display on the right |
-| `ariaLabel` | `string` | - | Accessibility label |
-| `class` | `string` | - | Additional CSS classes |
+| `variant` | `'primary' \| 'secondary' \| 'ghost' \| 'destructive' \| 'outline' \| 'link'` | `'primary'` | The visual variant of the button |
+| `size` | `'sm' \| 'md' \| 'lg' \| 'icon'` | `'md'` | The size of the button |
+| `disabled` | `boolean` | `false` | Whether the button is disabled |
+| `type` | `'button' \| 'submit' \| 'reset'` | `'button'` | The HTML button type |
 
 ## Outputs
 
 | Name | Type | Description |
 |------|------|-------------|
-| `clicked` | `Event` | Emitted when button is clicked |
+| `onClick` | `Event` | Emitted when the button is clicked |
 
 ## Signals
 
-All inputs are reactive signals that automatically update the component when changed.
+The component uses Angular signals for reactive state management. All inputs are signal-based for optimal performance.

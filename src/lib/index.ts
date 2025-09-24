@@ -15,20 +15,27 @@ export * from './tokens/spacing';
 export * from './types';
 
 // Export components
-export * from './components/ui/button.component';
-export * from './components/button/button.component';
-export * from './components/button/button.variants';
+// export * from './components/ui/button.component'; // Replaced by shadcn version
 export * from './components/ui/card.component';
 export * from './components/ui/input.component';
 export * from './components/ui/modal.component';
-export * from './components/ui/badge.component';
+// export * from './components/ui/badge.component'; // Replaced by shadcn version
 export * from './components/ui/alert.component';
 export * from './components/ui/select.component';
-export * from './components/ui/avatar.component';
+// export * from './components/ui/avatar.component'; // Replaced by shadcn version
 export * from './components/ui/switch.component';
 export * from './components/ui/tooltip.component';
 export * from './components/ui/simple-button.component';
 export * from './components/ui/checkbox.component';
+
+// Export new shadcn-style components
+export * from './angular-shadcn/components/button/button.component';
+export * from './angular-shadcn/components/avatar/avatar.component';
+export * from './angular-shadcn/components/accordion/accordion.component';
+export * from './angular-shadcn/components/badge/badge.component';
+export * from './angular-shadcn/components/breadcrumb/breadcrumb.component';
+export * from './angular-shadcn/components/toast/toast.component';
+export * from './angular-shadcn/components/toggle/toggle.component';
 
 // Export new components
 export { ProgressComponent } from './components/ui/progress.component';

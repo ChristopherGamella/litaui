@@ -16,6 +16,11 @@ export const routes: Routes = [
     loadComponent: () => import('../lib/demo/components/shadcn-showcase.component').then(c => c.ShadcnShowcaseComponent),
     title: 'Comprehensive Demo'
   },
+  {
+    path: 'library',
+    loadComponent: () => import('../lib/angular-shadcn/components/library-showcase.component').then(c => c.LibraryShowcaseComponent),
+    title: 'Library Showcase'
+  },
   // Documentation routes
   {
     path: 'docs',
