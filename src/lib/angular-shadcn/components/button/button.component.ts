@@ -2,7 +2,7 @@ import { Component, HostBinding, computed, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Loader2 } from 'lucide-angular';
 import { buttonVariants, type ButtonVariant } from './button.variants';
-import { cn } from '../../utils/cn';
+import { cn } from '../../../utils/cn';
 
 /**
  * Button component following shadcn/ui design patterns

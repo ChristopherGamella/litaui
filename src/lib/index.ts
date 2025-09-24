@@ -15,16 +15,20 @@ export * from './tokens/spacing';
 export * from './types';
 
 // Export components
-export * from './components/ui/button.component';
-export * from './components/button/button.component';
-export * from './components/button/button.variants';
+// export * from './components/ui/button.component';
+export * from './angular-shadcn/components/button/button.component';
+export * from './angular-shadcn/components/button/button.variants';
+export * from './angular-shadcn/components/avatar/avatar.component';
+export * from './angular-shadcn/components/avatar/avatar.variants';
+export * from './angular-shadcn/components/badge/badge.component';
+export * from './angular-shadcn/components/badge/badge.variants';
 export * from './components/ui/card.component';
 export * from './components/ui/input.component';
 export * from './components/ui/modal.component';
-export * from './components/ui/badge.component';
+// export * from './components/ui/badge.component';
 export * from './components/ui/alert.component';
 export * from './components/ui/select.component';
-export * from './components/ui/avatar.component';
+// export * from './components/ui/avatar.component';
 export * from './components/ui/switch.component';
 export * from './components/ui/tooltip.component';
 export * from './components/ui/simple-button.component';

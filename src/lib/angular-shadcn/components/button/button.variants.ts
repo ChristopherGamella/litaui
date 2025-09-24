@@ -1,4 +1,4 @@
-import { cva, type VariantProps } from '../../utils/cn';
+import { cva, type VariantProps } from 'class-variance-authority';
 
 /**
  * Button variants configuration
