@@ -1,6 +1,7 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output, booleanAttribute } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { buttonVariants, type ButtonVariant } from './button.variants';
+import { cn } from '../../../utils/cn';
 
 /**
  * Button component following shadcn/ui design patterns
@@ -12,13 +13,16 @@ import { buttonVariants, type ButtonVariant } from './button.variants';
  * <lib-button>Click me</lib-button>
  *
  * <!-- Variants -->
+ * <lib-button variant="default">Default</lib-button>
  * <lib-button variant="outline">Outline</lib-button>
  * <lib-button variant="destructive">Delete</lib-button>
  * <lib-button variant="ghost">Ghost</lib-button>
+ * <lib-button variant="secondary">Secondary</lib-button>
  * <lib-button variant="link">Link</lib-button>
  *
  * <!-- Sizes -->
  * <lib-button size="sm">Small</lib-button>
+ * <lib-button size="default">Default</lib-button>
  * <lib-button size="lg">Large</lib-button>
  * ```
  */
@@ -30,8 +34,8 @@ import { buttonVariants, type ButtonVariant } from './button.variants';
     <button
       [type]="type()"
       [disabled]="disabled()"
-      [class]="buttonClasses()"
-      (click)="onClick.emit($event)"
+      [class]="componentClasses()"
+      (click)="clicked.emit($event)"
     >
       <ng-content></ng-content>
     </button>
@@ -44,21 +48,23 @@ import { buttonVariants, type ButtonVariant } from './button.variants';
 })
 export class ButtonComponent {
   // Signal inputs
-  readonly variant = input<ButtonVariant['variant']>('primary');
-  readonly size = input<ButtonVariant['size']>('md');
-  readonly disabled = input<boolean>(false);
+  readonly variant = input<ButtonVariant['variant']>('default');
+  readonly size = input<ButtonVariant['size']>('default');
+  readonly disabled = input<boolean, string | boolean>(false, { transform: booleanAttribute });
   readonly type = input<'button' | 'submit' | 'reset'>('button');
+  readonly class = input<string>('');
 
   // Signal output
-  readonly onClick = output<Event>();
+  readonly clicked = output<MouseEvent>();
 
   /**
    * Computed button classes using the variant system
    */
-  protected buttonClasses = computed(() => {
-    return buttonVariants({
+  protected componentClasses = computed(() => cn(
+    buttonVariants({
       variant: this.variant(),
-      size: this.size(),
-    });
-  });
+      size: this.size()
+    }),
+    this.class()
+  ));
 }

@@ -8,7 +8,8 @@ The button uses semantic tokens for theming, ensuring consistency across light a
 
 ## Props
 
-- `variant`: Controls the visual style ('primary', 'secondary', 'ghost', 'destructive', 'outline', 'link')
-- `size`: Controls the size ('sm', 'md', 'lg', 'icon')
+- `variant`: Controls the visual style ('default', 'secondary', 'ghost', 'destructive', 'outline', 'link')
+- `size`: Controls the size ('sm', 'default', 'lg', 'icon')
 - `disabled`: Disables the button
 - `type`: Button type ('button', 'submit', 'reset')
+- `class`: Additional CSS classes to apply

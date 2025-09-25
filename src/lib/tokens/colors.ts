@@ -1,214 +1,131 @@
 /**
  * Design tokens for the shadcn-inspired Angular component library
- * Integrated with existing color system from styles.css
+ * Updated to work with modern OKLCH color system from tweakcn.com
  */
 
-// Base color palette (from existing system)
+/**
+ * Shadcn/ui semantic color tokens that map to CSS custom properties
+ * These use the new OKLCH color format for better color accuracy and consistency
+ */
 export const colors = {
-  // Brand colors (use sparingly)
-  brand: {
-    red: 'var(--color-brand-red)',
-    redHover: 'var(--color-brand-red-hover)',
-  },
-
-  // Primary UI colors (modern professional)
-  primary: {
-    50: 'var(--color-primary-50)',
-    100: 'var(--color-primary-100)',
-    700: 'var(--color-primary-700)',
-    800: 'var(--color-primary-800)',
-    900: 'var(--color-primary-900)',
-  },
-
-  // Accent colors (vibrant blue for trust)
-  accent: {
-    50: 'var(--color-accent-50)',
-    100: 'var(--color-accent-100)',
-    400: 'var(--color-accent-400)',
-    500: 'var(--color-accent-500)',
-    600: 'var(--color-accent-600)',
-  },
-
-  // Background colors
-  background: {
-    main: 'var(--color-background-main)',
-    subtle: 'var(--color-background-subtle)',
-    elevated: 'var(--color-background-elevated)',
-    accent: 'var(--color-background-accent)',
-  },
-
-  // Text colors
-  text: {
-    primary: 'var(--color-text-primary)',
-    secondary: 'var(--color-text-secondary)',
-    muted: 'var(--color-text-muted)',
-    placeholder: 'var(--color-text-placeholder)',
-    inverse: 'var(--color-text-inverse)',
-  },
-
+  // Core theme colors (directly map to CSS custom properties)
+  background: 'var(--background)',
+  foreground: 'var(--foreground)',
+  
+  // UI component colors
+  card: 'var(--card)',
+  'card-foreground': 'var(--card-foreground)',
+  popover: 'var(--popover)',
+  'popover-foreground': 'var(--popover-foreground)',
+  
+  // Brand colors
+  primary: 'var(--primary)',
+  'primary-foreground': 'var(--primary-foreground)',
+  secondary: 'var(--secondary)',
+  'secondary-foreground': 'var(--secondary-foreground)',
+  
+  // Interactive colors
+  muted: 'var(--muted)',
+  'muted-foreground': 'var(--muted-foreground)',
+  accent: 'var(--accent)',
+  'accent-foreground': 'var(--accent-foreground)',
+  
   // Status colors
-  success: {
-    50: 'var(--color-green-50)',
-    100: 'var(--color-green-100)',
-    500: 'var(--color-green-500)',
-    600: 'var(--color-green-600)',
-    700: 'var(--color-green-700)',
-    800: 'var(--color-green-800)',
-  },
-
-  error: {
-    50: 'var(--color-red-50)',
-    100: 'var(--color-red-100)',
-    500: 'var(--color-red-500)',
-    600: 'var(--color-red-600)',
-    700: 'var(--color-red-700)',
-    800: 'var(--color-red-800)',
-  },
-
-  warning: {
-    50: 'var(--color-yellow-50)',
-    100: 'var(--color-yellow-100)',
-    500: 'var(--color-yellow-500)',
-    600: 'var(--color-yellow-600)',
-    700: 'var(--color-yellow-700)',
-    800: 'var(--color-yellow-800)',
-  },
-
-  info: {
-    50: 'var(--color-blue-50)',
-    100: 'var(--color-blue-100)',
-    500: 'var(--color-blue-500)',
-    600: 'var(--color-blue-600)',
-    700: 'var(--color-blue-700)',
-    800: 'var(--color-blue-800)',
-  },
-
-  // Utility colors
-  white: 'var(--color-white)',
-  black: 'var(--color-black)',
-  transparent: 'var(--color-transparent)',
-  current: 'var(--color-current)',
+  destructive: 'var(--destructive)',
+  'destructive-foreground': 'var(--destructive-foreground)',
+  
+  // Form and border colors
+  border: 'var(--border)',
+  input: 'var(--input)',
+  ring: 'var(--ring)',
+  
+  // Chart colors
+  'chart-1': 'var(--chart-1)',
+  'chart-2': 'var(--chart-2)',
+  'chart-3': 'var(--chart-3)',
+  'chart-4': 'var(--chart-4)',
+  'chart-5': 'var(--chart-5)',
+  
+  // Sidebar colors (for complex layouts)
+  sidebar: 'var(--sidebar)',
+  'sidebar-foreground': 'var(--sidebar-foreground)',
+  'sidebar-primary': 'var(--sidebar-primary)',
+  'sidebar-primary-foreground': 'var(--sidebar-primary-foreground)',
+  'sidebar-accent': 'var(--sidebar-accent)',
+  'sidebar-accent-foreground': 'var(--sidebar-accent-foreground)',
+  'sidebar-border': 'var(--sidebar-border)',
+  'sidebar-ring': 'var(--sidebar-ring)',
 } as const;
 
 /**
- * Shadcn-style semantic color tokens
- * These map to the base colors above for consistent theming
+ * Design system spacing and radius tokens
  */
-export const semanticColors = {
-  // Background colors
-  background: colors.background.main,
-  foreground: colors.text.primary,
-
-  // Card colors
-  card: colors.background.elevated,
-  'card-foreground': colors.text.primary,
-
-  // Popover colors
-  popover: colors.background.elevated,
-  'popover-foreground': colors.text.primary,
-
-  // Primary colors
-  primary: colors.primary[900],
-  'primary-foreground': colors.white,
-
-  // Secondary colors
-  secondary: colors.primary[100],
-  'secondary-foreground': colors.primary[900],
-
-  // Muted colors
-  muted: colors.primary[100],
-  'muted-foreground': colors.text.muted,
-
-  // Accent colors
-  accent: colors.accent[100],
-  'accent-foreground': colors.accent[600],
-
-  // Destructive colors
-  destructive: colors.error[500],
-  'destructive-foreground': colors.white,
-
-  // Success colors
-  success: colors.success[600],
-  'success-foreground': colors.white,
-
-  // Border colors
-  border: colors.primary[100],
-  input: colors.primary[100],
-  ring: colors.accent[600],
-
-  // Radius (for border-radius)
-  radius: '0.5rem',
+export const radius = {
+  radius: 'var(--radius)',
+  'radius-sm': 'var(--radius-sm)',
+  'radius-md': 'var(--radius-md)', 
+  'radius-lg': 'var(--radius-lg)',
+  'radius-xl': 'var(--radius-xl)',
 } as const;
 
 /**
- * Component-specific color mappings
+ * Typography tokens
  */
-export const componentColors = {
+export const typographyTokens = {
+  'font-sans': 'var(--font-sans)',
+  'font-serif': 'var(--font-serif)',
+  'font-mono': 'var(--font-mono)',
+  
+  'tracking-tighter': 'var(--tracking-tighter)',
+  'tracking-tight': 'var(--tracking-tight)',
+  'tracking-normal': 'var(--tracking-normal)',
+  'tracking-wide': 'var(--tracking-wide)',
+  'tracking-wider': 'var(--tracking-wider)',
+  'tracking-widest': 'var(--tracking-widest)',
+} as const;
+
+/**
+ * Shadow tokens
+ */
+export const shadows = {
+  '2xs': 'var(--shadow-2xs)',
+  'xs': 'var(--shadow-xs)',
+  'sm': 'var(--shadow-sm)',
+  'default': 'var(--shadow)',
+  'md': 'var(--shadow-md)',
+  'lg': 'var(--shadow-lg)',
+  'xl': 'var(--shadow-xl)',
+  '2xl': 'var(--shadow-2xl)',
+} as const;
+
+/**
+ * Component-specific helper tokens for complex use cases
+ */
+export const componentHelpers = {
   button: {
-    primary: {
-      background: colors.primary[900],
-      foreground: colors.white,
-      hover: colors.primary[800],
-    },
-    secondary: {
-      background: colors.primary[100],
-      foreground: colors.primary[900],
-      hover: colors.primary[50],
-    },
-    outline: {
-      background: 'transparent',
-      foreground: colors.primary[900],
-      border: colors.primary[700],
-      hover: colors.primary[100],
-    },
-    ghost: {
-      background: 'transparent',
-      foreground: colors.primary[900],
-      hover: colors.primary[100],
-    },
     destructive: {
-      background: colors.error[500],
-      foreground: colors.white,
-      hover: colors.error[600],
+      background: colors.destructive,
+      foreground: colors['destructive-foreground'],
+      hover: colors.destructive, // Could be enhanced with opacity
     },
   },
-
   input: {
-    background: colors.white,
-    foreground: colors.text.primary,
-    border: colors.primary[100],
-    focus: {
-      border: colors.accent[600],
-      ring: colors.accent[100],
-    },
     error: {
-      border: colors.error[500],
-      ring: colors.error[50],
+      border: colors.destructive,
+      ring: colors.destructive,
     },
   },
-
   card: {
-    background: colors.background.elevated,
-    foreground: colors.text.primary,
-    border: colors.primary[100],
-    shadow: 'var(--shadow-elegant)',
+    background: colors.card,
+    foreground: colors['card-foreground'],
+    border: colors.border,
   },
 } as const;
 
 /**
- * Theme configuration for dark/light mode support
+ * Theme configuration types
  */
-export const themes = {
-  light: {
-    ...semanticColors,
-  },
-  dark: {
-    // Dark theme colors (to be implemented)
-    background: colors.primary[900],
-    foreground: colors.white,
-    // ... other dark theme mappings
-  },
-} as const;
-
-export type ColorScheme = keyof typeof themes;
-export type SemanticColor = keyof typeof semanticColors;
+export type ColorToken = keyof typeof colors;
+export type RadiusToken = keyof typeof radius;
+export type TypographyToken = keyof typeof typographyTokens;
+export type ShadowToken = keyof typeof shadows;

@@ -2,7 +2,7 @@
  * TypeScript interfaces and types for the shadcn-inspired Angular component library
  */
 
-import { ColorScheme, SemanticColor } from '../tokens/colors';
+import { ColorToken, RadiusToken, TypographyToken as TypographyThemeToken, ShadowToken } from '../tokens/colors';
 import { TypographyScale, FontSize, FontWeight, LetterSpacing, LineHeight } from '../tokens/typography';
 import { SpacingScale } from '../tokens/spacing';
 
@@ -305,7 +305,7 @@ export interface AvatarProps extends BaseComponentProps {
 /**
  * Theme-related types
  */
-export type { ColorScheme, SemanticColor, TypographyScale, FontSize, FontWeight, LetterSpacing, LineHeight, SpacingScale };
+export type { ColorToken, RadiusToken, TypographyThemeToken, ShadowToken, TypographyScale, FontSize, FontWeight, LetterSpacing, LineHeight, SpacingScale };
 
 /**
  * Utility types

@@ -1,11 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToggleComponent } from '../toggle.component';
+import { LucideAngularModule, Sun, Moon, Bold, Italic, Underline, icons } from 'lucide-angular';
 
 @Component({
   selector: 'lib-toggle-demo',
   standalone: true,
-  imports: [CommonModule, ToggleComponent],
+  imports: [CommonModule, ToggleComponent, LucideAngularModule],
   template: `
     <div class="space-y-8">
       <div>
@@ -22,6 +23,9 @@ import { ToggleComponent } from '../toggle.component';
           <lib-toggle size="sm" [pressed]="smPressed()" (pressedChange)="smPressed.set($event)">Small</lib-toggle>
           <lib-toggle size="md" [pressed]="mdPressed()" (pressedChange)="mdPressed.set($event)">Medium</lib-toggle>
           <lib-toggle size="lg" [pressed]="lgPressed()" (pressedChange)="lgPressed.set($event)">Large</lib-toggle>
+          <lib-toggle size="icon" aria-label="Icon size example" [pressed]="iconSizePressed()" (pressedChange)="iconSizePressed.set($event)">
+            <lucide-angular [img]="icons.Sun" class="h-4 w-4"></lucide-angular>
+          </lib-toggle>
         </div>
       </div>
 
@@ -38,15 +42,30 @@ import { ToggleComponent } from '../toggle.component';
       <div>
         <h3 class="text-lg font-semibold mb-4">With Icons</h3>
         <div class="flex flex-wrap gap-4">
-          <lib-toggle [pressed]="iconPressed1()" (pressedChange)="iconPressed1.set($event)">
-            <span class="mr-2">🔅</span>
-            Light
+          <lib-toggle size="icon" aria-label="Light mode" [pressed]="iconPressed1()" (pressedChange)="iconPressed1.set($event)">
+            <lucide-angular [img]="icons.Sun" class="h-4 w-4"></lucide-angular>
           </lib-toggle>
-          <lib-toggle [pressed]="iconPressed2()" (pressedChange)="iconPressed2.set($event)">
-            <span class="mr-2">🌙</span>
-            Dark
+          <lib-toggle size="icon" aria-label="Dark mode" [pressed]="iconPressed2()" (pressedChange)="iconPressed2.set($event)">
+            <lucide-angular [img]="icons.Moon" class="h-4 w-4"></lucide-angular>
           </lib-toggle>
         </div>
+        <p class="mt-2 text-sm text-muted-foreground">Icon-only toggles need accessible <code>aria-label</code>s.</p>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-semibold mb-4">Rich Text (Exclusive Group)</h3>
+        <div class="flex flex-wrap gap-2" role="radiogroup" aria-label="Text formatting">
+          <lib-toggle size="icon" aria-label="Bold" [pressed]="formatSelected() === 'bold'" (pressedChange)="onFormatSelect('bold', $event)">
+            <lucide-angular [img]="icons.Bold" class="h-4 w-4"></lucide-angular>
+          </lib-toggle>
+          <lib-toggle size="icon" aria-label="Italic" [pressed]="formatSelected() === 'italic'" (pressedChange)="onFormatSelect('italic', $event)">
+            <lucide-angular [img]="icons.Italic" class="h-4 w-4"></lucide-angular>
+          </lib-toggle>
+          <lib-toggle size="icon" aria-label="Underline" [pressed]="formatSelected() === 'underline'" (pressedChange)="onFormatSelect('underline', $event)">
+            <lucide-angular [img]="icons.Underline" class="h-4 w-4"></lucide-angular>
+          </lib-toggle>
+        </div>
+        <p class="mt-2 text-sm text-muted-foreground">Only one formatting option can be active at a time (radio behavior built with toggles).</p>
       </div>
 
       <div>
@@ -64,21 +83,34 @@ import { ToggleComponent } from '../toggle.component';
   `,
 })
 export class ToggleDemoComponent {
+  // Icon references (user requested explicit readonly declarations)
+  readonly sun = Sun; // kept for potential direct binding use
+  readonly moon = Moon;
+  readonly bold = Bold;
+  readonly italic = Italic;
+  readonly underline = Underline;
+  // icons collection for [img] binding (matches project convention)
+  readonly icons = icons;
   // Individual toggle states
   defaultPressed1 = signal(false);
   outlinePressed = signal(true);
   smPressed = signal(false);
   mdPressed = signal(true);
   lgPressed = signal(false);
+  iconSizePressed = signal(false);
 
   // Icon toggles
   iconPressed1 = signal(true);
   iconPressed2 = signal(false);
 
-  // Group toggles
+  // Multi-select group toggles
   groupPressed1 = signal(true);
   groupPressed2 = signal(false);
   groupPressed3 = signal(true);
+
+  // Exclusive format selection (radio-like behavior)
+  private _format = signal<'bold' | 'italic' | 'underline' | null>('bold');
+  formatSelected = computed(() => this._format());
 
   onGroupToggle(option: number, pressed: boolean) {
     switch (option) {
@@ -91,6 +123,15 @@ export class ToggleDemoComponent {
       case 3:
         this.groupPressed3.set(pressed);
         break;
+    }
+  }
+
+  onFormatSelect(format: 'bold' | 'italic' | 'underline', pressed: boolean) {
+    if (pressed) {
+      this._format.set(format);
+    } else if (this._format() === format) {
+      // Allow unselecting all (optional); remove this branch if always one must stay active
+      this._format.set(null);
     }
   }
 

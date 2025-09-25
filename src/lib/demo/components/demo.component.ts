@@ -60,7 +60,7 @@ import { ThemeService } from '../../utils/theme';
           <div class="flex flex-wrap items-center gap-4">
             <lib-button size="xs">Extra Small</lib-button>
             <lib-button size="sm">Small</lib-button>
-            <lib-button size="md">Medium</lib-button>
+            <lib-button size="default">Default</lib-button>
             <lib-button size="lg">Large</lib-button>
             <lib-button size="xl">Extra Large</lib-button>
           </div>

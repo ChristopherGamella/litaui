@@ -17,7 +17,7 @@ export * from './types';
 // Export components
 // export * from './components/ui/button.component'; // Replaced by shadcn version
 export * from './components/ui/card.component';
-export * from './components/ui/input.component';
+// export * from './components/ui/input.component'; // Replaced by shadcn version
 export * from './components/ui/modal.component';
 // export * from './components/ui/badge.component'; // Replaced by shadcn version
 export * from './components/ui/alert.component';
@@ -36,6 +36,7 @@ export * from './angular-shadcn/components/badge/badge.component';
 export * from './angular-shadcn/components/breadcrumb/breadcrumb.component';
 export * from './angular-shadcn/components/toast/toast.component';
 export * from './angular-shadcn/components/toggle/toggle.component';
+export * from './angular-shadcn/components/input/input.component';
 
 // Export new components
 export { ProgressComponent } from './components/ui/progress.component';

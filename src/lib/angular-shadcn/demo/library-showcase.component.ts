@@ -13,6 +13,8 @@ import { ToastDemoComponent } from '../components/toast/doc/demo.toast.component
 import { ToggleComponent } from '../components/toggle/toggle.component';
 import { ToggleDemoComponent } from '../components/toggle/doc/demo.toggle.component';
 import { ButtonDemoComponent } from '../components/button/doc/demo.button.component';
+import { InputComponent } from '../components/input/input.component';
+import { InputDemoComponent } from '../components/input/doc/demo.input.component';
 
 interface BreadcrumbItem {
   label: string;
@@ -40,7 +42,8 @@ interface ToastData {
     ToastComponent,
     ToastDemoComponent,
     ToggleDemoComponent,
-    ButtonDemoComponent
+    ButtonDemoComponent,
+    InputDemoComponent
   ],
   template: `
     <div class="p-8 max-w-6xl mx-auto bg-background min-h-screen">
@@ -72,6 +75,12 @@ interface ToastData {
           <lib-toggle-demo></lib-toggle-demo>
         </section>
 
+        <!-- Inputs -->
+        <section class="space-y-6">
+          <h2 class="text-2xl font-semibold text-foreground">Inputs</h2>
+          <lib-input-demo></lib-input-demo>
+        </section>
+
         <!-- Avatars -->
         <section class="space-y-6">
           <h2 class="text-2xl font-semibold text-foreground">Avatars</h2>
@@ -99,9 +108,9 @@ interface ToastData {
               Click the buttons below to see them in action.
             </p>
             <div class="flex flex-wrap gap-4">
-              <lib-button (onClick)="showSuccessToast()">Show Success Toast</lib-button>
-              <lib-button variant="destructive" (onClick)="showErrorToast()">Show Error Toast</lib-button>
-              <lib-button variant="secondary" (onClick)="showInfoToast()">Show Info Toast</lib-button>
+              <lib-button (clicked)="showSuccessToast()">Show Success Toast</lib-button>
+              <lib-button variant="destructive" (clicked)="showErrorToast()">Show Error Toast</lib-button>
+              <lib-button variant="secondary" (clicked)="showInfoToast()">Show Info Toast</lib-button>
             </div>
           </div>
           <div class="mt-8">
