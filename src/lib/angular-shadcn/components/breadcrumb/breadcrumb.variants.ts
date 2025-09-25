@@ -1,4 +1,4 @@
-import { cva } from 'class-variance-authority';
+import { cva } from '../../../utils/cn';
 
 export const breadcrumbVariants = cva('flex items-center space-x-1', {
   variants: {

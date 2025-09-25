@@ -40,10 +40,6 @@ import { buttonVariants, type ButtonVariant } from './button.variants';
     :host {
       display: inline-block;
     }
-
-    button {
-      width: 100%;
-    }
   `]
 })
 export class ButtonComponent {

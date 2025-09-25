@@ -42,10 +42,6 @@ import { toggleVariants, type ToggleVariant } from './toggle.variants';
     :host {
       display: inline-block;
     }
-
-    button {
-      width: 100%;
-    }
   `]
 })
 export class ToggleComponent {

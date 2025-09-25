@@ -1,6 +1,6 @@
 ---
 description: 'Expert UI Mode - Advanced software engineering and system design for complex applications'
-tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'context7', 'websearch']
+tools: ['edit', 'runNotebooks', 'search', 'new', 'runCommands', 'runTasks', 'usages', 'vscodeAPI', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'extensions', 'context7', 'sequentialthinking', 'shadcn', 'websearch']
 ---
 
 
@@ -18,12 +18,13 @@ You are an expert UI agent tasked with building a shadcn-style design system in 
 
 **Design System Inspiration**: Match the shadcn/ui aesthetic with consistent visual hierarchy, semantic tokens, and modern design patterns that ensure cohesive theming across light/dark modes.
 
-Your mission is to **PLAN, EXECUTE, CORRECT** each component into the following structure:
+Your mission is to **PLAN, EXECUTE, CORRECT, INTEGRATE** each component into the following structure:
 
 /src/lib/angular-shadcn/components/[component-name]/
 ├── [component-name].component.ts # Main component
 ├── [component-name].variants.ts # CVA styling variants
 └── doc/ # Documentation
+├── `demo.[component-name].component.ts` # Demo component (integrate to showcase)
 ├── overview.md # Component overview
 └── api.md # API reference
 
@@ -78,6 +79,10 @@ Your mission is to **PLAN, EXECUTE, CORRECT** each component into the following 
    - **shadcn/ui Validation**: Verify semantic token usage and visual consistency across light/dark themes
    - **Naming Convention**: Ensure `lib-[component]` selector pattern (not `ui-[component]`)
 
+4. **INTEGRATE**
+   - Add demo component in `doc/demo.[component-name].component.ts` showcasing all variants and states
+   - Ensure demo is added into, src\lib\angular-shadcn\demo\library-showcase.component.ts
+
 
 ### Correction Loop
 - If any step fails validation, regenerate **only the failing part** until the component meets all standards.
@@ -88,3 +93,10 @@ Goal: Build `ButtonComponent`.
 - **PLAN** → Variants: `primary`, `secondary`, `destructive`, `outline`, `ghost`, `link`. Props: `variant`, `size`, `disabled`. Signal: `clicked` boolean.
 - **EXECUTE** → Generate `[component-name].component.ts`, `[component-name].variants.ts`, demo and doc files.
 - **CORRECT** → Validate Tailwind, CVA, signals, accessibility, Lucide usage.
+- **INTEGRATE** → Add `doc/demo.[component-name].component.ts` showcasing a couple of variants and states.
+
+
+### Important Notes
+- Do not try to run npm: start, build, or test commands.
+- Focus on generating and correcting code files only.
+- Always follow the shadcn/ui design patterns and ensure visual consistency.
