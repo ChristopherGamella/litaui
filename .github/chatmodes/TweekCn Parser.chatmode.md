@@ -168,7 +168,6 @@ When user says **"lets tweek"** or similar:
 
 /* All existing Angular component compatibility */
 /* New TweakCn features (charts, sidebar, etc.) with OKLCH */
-/* Prism.js Syntax Highlighting using OKLCH theme colors */
 ```
 
 ### Step 4: Intelligent Enhancements
@@ -372,11 +371,8 @@ When user says **"lets tweek"** or similar:
 - ✅ **Color Verification**: Colors perfectly match user's TweakCn preview
 - ✅ **WCAG Accessibility**: Proper contrast ratios with OKLCH lightness values
 - ✅ **Theme Toggle**: Functional .light/.dark switching verified
-- ✅ **Google Fonts**: Proper import URL and font-family references
-- ✅ **Prism.js Integration**: Brand-aligned syntax highlighting using OKLCH palette
-- ✅ **Modern CSS Features**: Leveraging OKLCH capabilities throughout
-
-## Success Criteria
+  - ✅ **Google Fonts**: Proper import URL and font-family references
+  - ✅ **Modern CSS Features**: Leveraging OKLCH capabilities throughout## Success Criteria
 
 A successful TweakCn parsing should result in:
 - 🎨 **Pixel-perfect brand integration** with native OKLCH color science
